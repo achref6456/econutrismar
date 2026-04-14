@@ -1,65 +1,43 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
 
-class User {
+declare(strict_types=1);
+
+class User
+{
     private PDO $pdo;
 
-    public function __construct() {
-        $this->pdo = Database::getInstance()->getPdo();
+    public function __construct()
+    {
+        $this->pdo = Database::getConnection();
     }
 
-    public function findAll(): array {
-        $stmt = $this->pdo->query(
-            "SELECT id, nom, prenom, email, role, created_at FROM users ORDER BY created_at DESC"
+    /** @return array<string,mixed>|null */
+    public function findByEmail(string $email): ?array
+    {
+        $st = $this->pdo->prepare(
+            'SELECT * FROM utilisateur WHERE email = :e LIMIT 1'
         );
-        return $stmt->fetchAll();
+        $st->execute(['e' => $email]);
+        $row = $st->fetch();
+        return $row ?: null;
     }
 
-    public function findById(int $id): array|false {
-        $stmt = $this->pdo->prepare(
-            "SELECT id, nom, prenom, email, role, created_at FROM users WHERE id = ?"
-        );
-        $stmt->execute([$id]);
-        return $stmt->fetch();
-    }
-
-    public function findByEmail(string $email): array|false {
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        return $stmt->fetch();
-    }
-
-    public function create(string $nom, string $prenom, string $email, string $password, string $role = 'user'): bool {
-        $hash = password_hash($password, PASSWORD_BCRYPT);
-        $stmt = $this->pdo->prepare(
-            "INSERT INTO users (nom, prenom, email, password, role, created_at) VALUES (?, ?, ?, ?, ?, NOW())"
-        );
-        return $stmt->execute([$nom, $prenom, $email, $hash, $role]);
-    }
-
-    public function update(int $id, string $nom, string $prenom, string $email, string $role): bool {
-        $stmt = $this->pdo->prepare(
-            "UPDATE users SET nom = ?, prenom = ?, email = ?, role = ? WHERE id = ?"
-        );
-        return $stmt->execute([$nom, $prenom, $email, $role, $id]);
-    }
-
-    public function delete(int $id): bool {
-        $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = ?");
-        return $stmt->execute([$id]);
-    }
-
-    public function verifyCredentials(string $email, string $password): array|false {
-        $user = $this->findByEmail($email);
-        if ($user && password_verify($password, $user['password'])) {
-            return $user;
+    public function verifyAdmin(string $email, string $password): bool
+    {
+        $u = $this->findByEmail($email);
+        if ($u === null || ($u['role'] ?? '') !== 'admin') {
+            return false;
         }
-        return false;
+        return password_verify($password, $u['mot_de_passe']);
     }
 
-    public function emailExists(string $email): bool {
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        return (bool) $stmt->fetchColumn();
+    /** @return array<string,mixed>|null */
+    public function findFirstAdmin(): ?array
+    {
+        $st = $this->pdo->query(
+            "SELECT * FROM utilisateur WHERE role = 'admin' ORDER BY id_user ASC LIMIT 1"
+        );
+        $row = $st->fetch();
+        return $row ?: null;
     }
 }
