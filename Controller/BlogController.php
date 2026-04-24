@@ -13,6 +13,8 @@ class BlogController
 
     public function index(): void
     {
+        // Auto-publier les articles programmés dont la date est dépassée
+        $this->model->publishScheduled();
         $articles = $this->model->findAllPublished();
         $pageTitle = 'Blog — EcoNutri';
         $uploadBase = '../../';
@@ -21,6 +23,9 @@ class BlogController
 
     public function show(): void
     {
+        // Auto-publier les articles programmés dont la date est dépassée
+        $this->model->publishScheduled();
+
         $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
         if ($id < 1) {
             http_response_code(404);
@@ -31,7 +36,8 @@ class BlogController
             return;
         }
         $article = $this->model->findById($id);
-        if ($article === null) {
+        // Bloquer l'accès aux articles non publiés
+        if ($article === null || ($article['statut'] ?? 'publie') !== 'publie') {
             http_response_code(404);
             $pageTitle = 'Article introuvable';
             $error = 'Article introuvable.';

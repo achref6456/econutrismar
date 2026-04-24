@@ -1,0 +1,17 @@
+[
+    {
+        "article_id": 3,
+        "ip": "127.0.0.1",
+        "timestamp": 1776991207
+    },
+    {
+        "article_id": 3,
+        "ip": "::1",
+        "timestamp": 1776991870
+    },
+    {
+        "article_id": 1,
+        "ip": "::1",
+        "timestamp": 1776992783
+    }
+]

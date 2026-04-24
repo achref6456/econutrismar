@@ -1,0 +1,26 @@
+[
+    {
+        "id_commentaire": 2,
+        "article_id": 1,
+        "pseudo": "moj",
+        "contenu": "wwwwwwww",
+        "date_commentaire": "2026-04-24 01:20:29",
+        "statut": "approuve"
+    },
+    {
+        "id_commentaire": 3,
+        "article_id": 1,
+        "pseudo": "med",
+        "contenu": "dbakd",
+        "date_commentaire": "2026-04-24 01:50:32",
+        "statut": "refuse"
+    },
+    {
+        "id_commentaire": 4,
+        "article_id": 1,
+        "pseudo": "amara",
+        "contenu": "good",
+        "date_commentaire": "2026-04-24 02:07:00",
+        "statut": "approuve"
+    }
+]

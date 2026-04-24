@@ -22,6 +22,8 @@ class AdminBlogController
     public function index(): void
     {
         $this->requireAuth();
+        // Auto-publier les articles programmés dont la date est dépassée
+        $this->model->publishScheduled();
         $articles = $this->model->findAllForAdmin();
         $flash = $_SESSION['flash'] ?? null;
         unset($_SESSION['flash']);
@@ -61,6 +63,7 @@ class AdminBlogController
                 'contenu'          => $old['contenu'] ?? '',
                 'date_publication' => $old['date_publication'] ?? '',
                 'image'            => $old['image'] ?? '',
+                'statut'           => $old['statut'] ?? 'publie',
             ];
         }
         $pageTitle = 'Nouvel article';
@@ -92,7 +95,13 @@ class AdminBlogController
 
         $data['user_id'] = (int) $_SESSION['admin_id'];
         $this->model->create($data);
-        $_SESSION['flash'] = 'Article publié avec succès.';
+
+        $flashMsgs = [
+            'publie'    => 'Article publié avec succès.',
+            'brouillon' => 'Article enregistré comme brouillon.',
+            'programme' => 'Article programmé pour publication le ' . $data['date_publication'] . '.',
+        ];
+        $_SESSION['flash'] = $flashMsgs[$data['statut']] ?? 'Article enregistré.';
         header('Location: index.php');
         exit;
     }
@@ -120,6 +129,7 @@ class AdminBlogController
                 'contenu'          => $old['contenu'] ?? $article['contenu'],
                 'date_publication' => $old['date_publication'] ?? $article['date_publication'],
                 'image'            => $old['image'] ?? $article['image'],
+                'statut'           => $old['statut'] ?? $article['statut'] ?? 'publie',
             ]);
         }
         $pageTitle = 'Modifier l’article';
@@ -182,7 +192,7 @@ class AdminBlogController
         exit;
     }
 
-    /** @return array{titre:string,contenu:string,date_publication:string,image:string} */
+    /** @return array{titre:string,contenu:string,date_publication:string,image:string,statut:string} */
     private function sanitizeInput(): array
     {
         return [
@@ -190,10 +200,11 @@ class AdminBlogController
             'contenu'          => trim((string) ($_POST['contenu'] ?? '')),
             'date_publication' => trim((string) ($_POST['date_publication'] ?? '')),
             'image'            => trim((string) ($_POST['image'] ?? '')),
+            'statut'           => trim((string) ($_POST['statut'] ?? 'publie')),
         ];
     }
 
-    /** @param array{titre:string,contenu:string,date_publication:string,image:string} $data */
+    /** @param array{titre:string,contenu:string,date_publication:string,image:string,statut:string} $data */
     /** @return list<string> */
     private function validateArticle(array $data): array
     {
@@ -207,9 +218,25 @@ class AdminBlogController
         if ($data['date_publication'] === '') {
             $errors[] = 'La date de publication est obligatoire.';
         } else {
-            $d = DateTime::createFromFormat('Y-m-d', $data['date_publication']);
-            if (!$d || $d->format('Y-m-d') !== $data['date_publication']) {
+            // Accepter le format datetime-local (Y-m-d\TH:i) ou datetime complet (Y-m-d H:i:s)
+            $d = DateTime::createFromFormat('Y-m-d\TH:i', $data['date_publication'])
+              ?: DateTime::createFromFormat('Y-m-d H:i:s', $data['date_publication'])
+              ?: DateTime::createFromFormat('Y-m-d', $data['date_publication']);
+            if (!$d) {
                 $errors[] = 'Date de publication invalide.';
+            }
+        }
+        // Valider le statut
+        $statutsValides = ['brouillon', 'programme', 'publie'];
+        if (!in_array($data['statut'], $statutsValides, true)) {
+            $errors[] = 'Statut invalide.';
+        }
+        // Si programmé : la date doit être dans le futur (tolérance de 5 min)
+        if ($data['statut'] === 'programme' && isset($d) && $d instanceof DateTime) {
+            $now = new DateTime('now');
+            $now->modify('-5 minutes');
+            if ($d <= $now) {
+                $errors[] = 'La date de publication programmée doit être dans le futur.';
             }
         }
         return $errors;

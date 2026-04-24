@@ -6,10 +6,15 @@ class Blog
 {
     private ?PDO $pdo = null;
     private string $jsonFile;
+    private string $likesFile;
+    private string $viewsFile;
 
     public function __construct()
     {
-        $this->jsonFile = __DIR__ . '/storage/blog_articles.json';
+        $storageDir = __DIR__ . '/storage';
+        $this->jsonFile  = $storageDir . '/blog_articles.json';
+        $this->likesFile = $storageDir . '/blog_likes.json';
+        $this->viewsFile = $storageDir . '/blog_vues.json';
         try {
             $this->pdo = Database::getConnection();
         } catch (Throwable $e) {
@@ -22,11 +27,16 @@ class Blog
     public function findAllPublished(): array
     {
         if ($this->pdo === null) {
-            return $this->sortArticles($this->loadJsonArticles());
+            $rows = array_filter(
+                $this->loadJsonArticles(),
+                static fn(array $r): bool => ($r['statut'] ?? 'publie') === 'publie'
+            );
+            return $this->sortArticles(array_values($rows));
         }
         $sql = 'SELECT b.*, u.prenom, u.nom AS auteur_nom
                 FROM blog b
                 JOIN utilisateur u ON u.id_user = b.user_id
+                WHERE b.statut = \'publie\'
                 ORDER BY b.date_publication DESC, b.id_article DESC';
         $st = $this->pdo->query($sql);
         return $st->fetchAll();
@@ -86,8 +96,9 @@ class Blog
         if ($this->pdo === null) {
             $rows = $this->sortArticles($this->loadJsonArticles());
             foreach ($rows as &$r) {
-                $r['vues'] = 0;
-                $r['likes'] = 0;
+                $aid = (int) ($r['id_article'] ?? 0);
+                $r['vues']  = $this->countJsonViews($aid);
+                $r['likes'] = $this->countJsonLikes($aid);
             }
             return $rows;
         }
@@ -115,6 +126,7 @@ class Blog
                 'contenu' => (string) $data['contenu'],
                 'date_publication' => (string) $data['date_publication'],
                 'image' => (string) ($data['image'] ?? ''),
+                'statut' => (string) ($data['statut'] ?? 'publie'),
                 'user_id' => (int) ($data['user_id'] ?? 1),
                 'prenom' => 'Admin',
                 'auteur_nom' => 'EcoNutri',
@@ -123,14 +135,15 @@ class Blog
             $this->saveJsonArticles($rows);
             return $nextId;
         }
-        $sql = 'INSERT INTO blog (titre, contenu, date_publication, image, user_id)
-                VALUES (:titre, :contenu, :date_publication, :image, :user_id)';
+        $sql = 'INSERT INTO blog (titre, contenu, date_publication, image, statut, user_id)
+                VALUES (:titre, :contenu, :date_publication, :image, :statut, :user_id)';
         $st = $this->pdo->prepare($sql);
         $st->execute([
             'titre'             => $data['titre'],
             'contenu'           => $data['contenu'],
             'date_publication'  => $data['date_publication'],
             'image'             => $data['image'] ?? '',
+            'statut'            => $data['statut'] ?? 'publie',
             'user_id'           => (int) $data['user_id'],
         ]);
         return (int) $this->pdo->lastInsertId();
@@ -149,6 +162,7 @@ class Blog
                 $row['contenu'] = (string) $data['contenu'];
                 $row['date_publication'] = (string) $data['date_publication'];
                 $row['image'] = (string) ($data['image'] ?? '');
+                $row['statut'] = (string) ($data['statut'] ?? $row['statut'] ?? 'publie');
                 $updated = true;
                 break;
             }
@@ -159,7 +173,7 @@ class Blog
             return $updated;
         }
         $sql = 'UPDATE blog SET titre = :titre, contenu = :contenu,
-                date_publication = :date_publication, image = :image
+                date_publication = :date_publication, image = :image, statut = :statut
                 WHERE id_article = :id';
         $st = $this->pdo->prepare($sql);
         return $st->execute([
@@ -168,6 +182,7 @@ class Blog
             'contenu'           => $data['contenu'],
             'date_publication'  => $data['date_publication'],
             'image'             => $data['image'] ?? '',
+            'statut'            => $data['statut'] ?? 'publie',
         ]);
     }
 
@@ -187,6 +202,36 @@ class Blog
         return $st->execute(['id' => $id]);
     }
 
+    /** Publier automatiquement les articles programmés dont la date est dépassée */
+    public function publishScheduled(): int
+    {
+        if ($this->pdo === null) {
+            $rows = $this->loadJsonArticles();
+            $now = date('Y-m-d H:i:s');
+            $count = 0;
+            foreach ($rows as &$r) {
+                if (($r['statut'] ?? '') === 'programme') {
+                    // Normaliser la date stockée pour la comparaison
+                    $pubDate = $this->normalizeDatetime((string) ($r['date_publication'] ?? ''));
+                    if ($pubDate <= $now) {
+                        $r['statut'] = 'publie';
+                        $count++;
+                    }
+                }
+            }
+            unset($r);
+            if ($count > 0) {
+                $this->saveJsonArticles($rows);
+            }
+            return $count;
+        }
+        $st = $this->pdo->prepare(
+            "UPDATE blog SET statut = 'publie' WHERE statut = 'programme' AND date_publication <= NOW()"
+        );
+        $st->execute();
+        return $st->rowCount();
+    }
+
     /** ID du premier utilisateur admin (pour formulaires sans auth complète) */
     public function getDefaultAdminUserId(): int
     {
@@ -202,7 +247,27 @@ class Blog
 
     public function trackView(int $articleId, string $ip): void
     {
-        if ($this->pdo === null) return; // Fallback ignore analytics
+        if ($this->pdo === null) {
+            // Fallback JSON — une IP = une vue par 24h
+            $views = $this->loadJsonFile($this->viewsFile);
+            $now = time();
+            $cutoff = $now - 86400; // 24h
+            // Vérifier si déjà vu dans les 24h
+            foreach ($views as $v) {
+                if ((int) ($v['article_id'] ?? 0) === $articleId
+                    && ($v['ip'] ?? '') === $ip
+                    && ($v['timestamp'] ?? 0) >= $cutoff) {
+                    return; // Déjà compté
+                }
+            }
+            $views[] = [
+                'article_id' => $articleId,
+                'ip'         => $ip,
+                'timestamp'  => $now,
+            ];
+            $this->saveJsonFile($this->viewsFile, $views);
+            return;
+        }
         // Une IP = une vue par 24h
         $sqlCheck = 'SELECT id FROM blog_vues WHERE article_id = :id AND ip_address = :ip AND viewed_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) LIMIT 1';
         $st = $this->pdo->prepare($sqlCheck);
@@ -215,7 +280,27 @@ class Blog
 
     public function toggleLike(int $articleId, string $ip): bool
     {
-        if ($this->pdo === null) return false;
+        if ($this->pdo === null) {
+            // Fallback JSON
+            $likes = $this->loadJsonFile($this->likesFile);
+            // Chercher un like existant
+            foreach ($likes as $k => $l) {
+                if ((int) ($l['article_id'] ?? 0) === $articleId && ($l['ip'] ?? '') === $ip) {
+                    // Unlike — supprimer
+                    array_splice($likes, $k, 1);
+                    $this->saveJsonFile($this->likesFile, $likes);
+                    return false;
+                }
+            }
+            // Like — ajouter
+            $likes[] = [
+                'article_id' => $articleId,
+                'ip'         => $ip,
+                'timestamp'  => time(),
+            ];
+            $this->saveJsonFile($this->likesFile, $likes);
+            return true;
+        }
         $sqlCheck = 'SELECT id FROM blog_likes WHERE article_id = :id AND ip_address = :ip LIMIT 1';
         $st = $this->pdo->prepare($sqlCheck);
         $st->execute(['id' => $articleId, 'ip' => $ip]);
@@ -231,7 +316,15 @@ class Blog
 
     public function hasLiked(int $articleId, string $ip): bool
     {
-        if ($this->pdo === null) return false;
+        if ($this->pdo === null) {
+            $likes = $this->loadJsonFile($this->likesFile);
+            foreach ($likes as $l) {
+                if ((int) ($l['article_id'] ?? 0) === $articleId && ($l['ip'] ?? '') === $ip) {
+                    return true;
+                }
+            }
+            return false;
+        }
         $st = $this->pdo->prepare('SELECT id FROM blog_likes WHERE article_id = :id AND ip_address = :ip LIMIT 1');
         $st->execute(['id' => $articleId, 'ip' => $ip]);
         return (bool) $st->fetch();
@@ -239,7 +332,27 @@ class Blog
 
     public function getStats(string $period = 'all'): array
     {
-        if ($this->pdo === null) return ['topViews' => [], 'topLikes' => [], 'chartLabels' => [], 'chartData' => []];
+        if ($this->pdo === null) {
+            // Fallback JSON — stats basiques
+            $articles = $this->loadJsonArticles();
+            $topViews = [];
+            $topLikes = [];
+            foreach ($articles as $a) {
+                $aid = (int) ($a['id_article'] ?? 0);
+                $topViews[] = ['titre' => $a['titre'] ?? '', 'total' => $this->countJsonViews($aid)];
+                $topLikes[] = ['titre' => $a['titre'] ?? '', 'total' => $this->countJsonLikes($aid)];
+            }
+            usort($topViews, static fn($a, $b) => (int)$b['total'] <=> (int)$a['total']);
+            usort($topLikes, static fn($a, $b) => (int)$b['total'] <=> (int)$a['total']);
+            $topViews = array_slice($topViews, 0, 5);
+            $topLikes = array_slice($topLikes, 0, 5);
+            return [
+                'topViews'    => $topViews,
+                'topLikes'    => $topLikes,
+                'chartLabels' => array_column($topViews, 'titre'),
+                'chartData'   => array_column($topViews, 'total'),
+            ];
+        }
 
         $whereClause = '';
         if ($period === 'week') $whereClause = '>= DATE_SUB(NOW(), INTERVAL 7 DAY)';
@@ -272,6 +385,71 @@ class Blog
             'chartData' => $chartData
         ];
     }
+
+    // --- JSON Likes/Views helpers ---
+
+    private function countJsonViews(int $articleId): int
+    {
+        $views = $this->loadJsonFile($this->viewsFile);
+        $count = 0;
+        foreach ($views as $v) {
+            if ((int) ($v['article_id'] ?? 0) === $articleId) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
+    private function countJsonLikes(int $articleId): int
+    {
+        $likes = $this->loadJsonFile($this->likesFile);
+        $count = 0;
+        foreach ($likes as $l) {
+            if ((int) ($l['article_id'] ?? 0) === $articleId) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
+    /** Normaliser une date (accepte T et espace) en format comparable Y-m-d H:i:s */
+    private function normalizeDatetime(string $date): string
+    {
+        // 2026-04-24T01:24 → 2026-04-24 01:24:00
+        $d = DateTime::createFromFormat('Y-m-d\TH:i', $date)
+          ?: DateTime::createFromFormat('Y-m-d H:i:s', $date)
+          ?: DateTime::createFromFormat('Y-m-d H:i', $date)
+          ?: DateTime::createFromFormat('Y-m-d', $date);
+        return $d ? $d->format('Y-m-d H:i:s') : $date;
+    }
+
+    // --- JSON file helpers (generic) ---
+
+    /** @return list<array<string,mixed>> */
+    private function loadJsonFile(string $path): array
+    {
+        if (!is_file($path)) {
+            return [];
+        }
+        $raw = (string) file_get_contents($path);
+        $data = json_decode($raw, true);
+        return is_array($data) ? $data : [];
+    }
+
+    /** @param list<array<string,mixed>> $data */
+    private function saveJsonFile(string $path, array $data): void
+    {
+        $dir = dirname($path);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+        $json = json_encode(array_values($data), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        if ($json !== false) {
+            file_put_contents($path, $json . PHP_EOL);
+        }
+    }
+
+    // --- Articles JSON storage ---
 
     private function ensureJsonStorage(): void
     {

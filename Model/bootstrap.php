@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+// Fuseau horaire — doit correspondre au serveur local
+date_default_timezone_set('Africa/Tunis');
+
 $config = require __DIR__ . '/config.php';
 
 $root = dirname(__DIR__);

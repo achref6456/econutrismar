@@ -21,6 +21,8 @@ class Database
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]);
+            // Aligner le fuseau MySQL sur le fuseau PHP (non-bloquant)
+            try { self::$pdo->exec("SET time_zone = '+01:00'"); } catch (Throwable $e) {}
         }
         return self::$pdo;
     }

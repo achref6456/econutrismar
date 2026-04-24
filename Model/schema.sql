@@ -19,12 +19,21 @@ CREATE TABLE IF NOT EXISTS blog (
   id_article INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   titre VARCHAR(255) NOT NULL,
   contenu TEXT NOT NULL,
-  date_publication DATE NOT NULL,
+  date_publication DATETIME NOT NULL,
   image VARCHAR(512) NOT NULL DEFAULT '',
+  statut VARCHAR(20) NOT NULL DEFAULT 'publie',
   user_id INT UNSIGNED NOT NULL,
   CONSTRAINT fk_blog_user FOREIGN KEY (user_id) REFERENCES utilisateur (id_user) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Migration pour une base existante :
+-- ALTER TABLE blog MODIFY date_publication DATETIME NOT NULL;
+-- ALTER TABLE blog ADD COLUMN statut VARCHAR(20) NOT NULL DEFAULT 'publie' AFTER image;
+
+-- Jointure : commentaire.article_id → blog.id_article
+-- SELECT c.*, b.titre AS article_titre
+-- FROM commentaire c
+-- LEFT JOIN blog b ON b.id_article = c.article_id;
 CREATE TABLE IF NOT EXISTS commentaire (
   id_commentaire INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   article_id INT UNSIGNED NOT NULL,
@@ -62,11 +71,12 @@ VALUES (
   'actif'
 ) ON DUPLICATE KEY UPDATE email = email;
 
-INSERT INTO blog (titre, contenu, date_publication, image, user_id)
+INSERT INTO blog (titre, contenu, date_publication, image, statut, user_id)
 SELECT
   'Bienvenue sur le blog EcoNutri',
   'Ce premier article est inséré par le script SQL. Vous pouvez le modifier ou le supprimer depuis le back-office Blog après connexion.',
-  CURDATE(),
+  NOW(),
   '',
+  'publie',
   id_user
 FROM utilisateur WHERE role = 'admin' ORDER BY id_user ASC LIMIT 1;

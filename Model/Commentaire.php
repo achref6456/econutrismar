@@ -88,7 +88,24 @@ class Commentaire
             usort($rows, static fn(array $a, array $b): int =>
                 strcmp((string) ($b['date_commentaire'] ?? ''), (string) ($a['date_commentaire'] ?? ''))
             );
-            return array_values($rows);
+            // Joindre les titres d'articles depuis le fichier JSON du blog
+            $blogFile = __DIR__ . '/storage/blog_articles.json';
+            $titres = [];
+            if (is_file($blogFile)) {
+                $articles = json_decode((string) file_get_contents($blogFile), true);
+                if (is_array($articles)) {
+                    foreach ($articles as $a) {
+                        $titres[(int) ($a['id_article'] ?? 0)] = (string) ($a['titre'] ?? '');
+                    }
+                }
+            }
+            $result = array_values($rows);
+            foreach ($result as &$r) {
+                $aid = (int) ($r['article_id'] ?? 0);
+                $r['article_titre'] = $titres[$aid] ?? '';
+            }
+            unset($r);
+            return $result;
         }
 
         $where = [];
@@ -165,7 +182,23 @@ class Commentaire
     public function getArticleList(): array
     {
         if ($this->pdo === null) {
-            return [];
+            $blogFile = __DIR__ . '/storage/blog_articles.json';
+            if (!is_file($blogFile)) {
+                return [];
+            }
+            $articles = json_decode((string) file_get_contents($blogFile), true);
+            if (!is_array($articles)) {
+                return [];
+            }
+            $list = [];
+            foreach ($articles as $a) {
+                $list[] = [
+                    'id_article' => (int) ($a['id_article'] ?? 0),
+                    'titre'      => (string) ($a['titre'] ?? ''),
+                ];
+            }
+            usort($list, static fn($a, $b) => strcmp($a['titre'], $b['titre']));
+            return $list;
         }
         $st = $this->pdo->query('SELECT id_article, titre FROM blog ORDER BY titre ASC');
         return $st->fetchAll();

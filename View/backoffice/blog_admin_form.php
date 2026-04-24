@@ -4,8 +4,18 @@ $isEdit = isset($a['id_article']);
 $idVal = $isEdit ? (int) $a['id_article'] : 0;
 $titre = htmlspecialchars((string) ($a['titre'] ?? ''));
 $contenu = htmlspecialchars((string) ($a['contenu'] ?? ''));
-$datePub = htmlspecialchars((string) ($a['date_publication'] ?? date('Y-m-d')));
+$rawDate = (string) ($a['date_publication'] ?? '');
+// Convertir en format datetime-local (Y-m-d\TH:i)
+if ($rawDate !== '') {
+    $dt = DateTime::createFromFormat('Y-m-d H:i:s', $rawDate)
+       ?: DateTime::createFromFormat('Y-m-d\TH:i', $rawDate)
+       ?: DateTime::createFromFormat('Y-m-d', $rawDate);
+    $datePub = $dt ? htmlspecialchars($dt->format('Y-m-d\TH:i')) : htmlspecialchars($rawDate);
+} else {
+    $datePub = htmlspecialchars(date('Y-m-d\TH:i'));
+}
 $imageUrl = htmlspecialchars((string) ($a['image'] ?? ''));
+$statut = htmlspecialchars((string) ($a['statut'] ?? 'publie'));
 $action = $isEdit ? 'edit.php' : 'create.php';
 ?>
 <!DOCTYPE html>
@@ -35,6 +45,7 @@ $action = $isEdit ? 'edit.php' : 'create.php';
     .fg label { display:block; font-size:.82rem; font-weight:600; color:var(--green-dark); margin-bottom:.35rem; }
     .fc { width:100%; padding:.65rem .9rem; border:1.5px solid var(--border); border-radius:10px; font-family:inherit; font-size:.9rem; background:#fff; }
     textarea.fc { min-height:200px; resize:vertical; }
+    select.fc { cursor:pointer; appearance:auto; }
     .hint { font-size:.78rem; color:#666; margin-top:.25rem; }
     .row { display:flex; gap:1rem; flex-wrap:wrap; }
     .row .fg { flex:1; min-width:200px; }
@@ -43,6 +54,13 @@ $action = $isEdit ? 'edit.php' : 'create.php';
     .btn-primary { background:linear-gradient(135deg,var(--green-main),var(--green-dark)); color:#fff; }
     .btn-ghost { background:transparent; border:1.5px solid var(--border); color:#555; text-decoration:none; display:inline-flex; align-items:center; }
     .preview { max-width:200px; border-radius:10px; margin-top:.5rem; border:1.5px solid var(--border); }
+
+    /* Statut badges inline */
+    .statut-info { display:inline-flex; align-items:center; gap:.3rem; padding:.2rem .55rem; border-radius:50px; font-size:.72rem; font-weight:600; margin-left:.5rem; vertical-align:middle; }
+    .statut-info.brouillon { background:#fff3e0; color:#e65100; border:1px solid #ffcc80; }
+    .statut-info.programme { background:#e3f2fd; color:#1565c0; border:1px solid #90caf9; }
+    .statut-info.publie { background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; }
+
     @media (max-width:800px) { body { flex-direction:column; } aside { width:100%; } }
   </style>
 </head>
@@ -59,7 +77,7 @@ $action = $isEdit ? 'edit.php' : 'create.php';
     <div class="logout"><a href="logout.php">Déconnexion</a></div>
   </aside>
   <main>
-    <h1><?= $isEdit ? 'Modifier l’article' : 'Nouvel article' ?></h1>
+    <h1><?= $isEdit ? 'Modifier l\'article' : 'Nouvel article' ?></h1>
     <?php if (!empty($errors)): ?>
       <ul class="errs">
         <?php foreach ($errors as $err): ?>
@@ -77,10 +95,29 @@ $action = $isEdit ? 'edit.php' : 'create.php';
       </div>
       <div class="row">
         <div class="fg">
-          <label for="date_publication">Date de publication</label>
-          <input class="fc" type="text" name="date_publication" id="date_publication" value="<?= $datePub ?>" placeholder="AAAA-MM-JJ" />
-          <p class="hint">Format : AAAA-MM-JJ (ex. 2026-04-12)</p>
+          <label for="date_publication">📅 Date et heure de publication</label>
+          <input class="fc" type="datetime-local" name="date_publication" id="date_publication" value="<?= $datePub ?>" />
+          <p class="hint" id="dateHint">Choisissez la date et l'heure de publication.</p>
         </div>
+        <div class="fg">
+          <label for="statut">📌 Statut</label>
+          <select class="fc" name="statut" id="statut">
+            <option value="publie" <?= $statut === 'publie' ? 'selected' : '' ?>>✅ Publié</option>
+            <option value="brouillon" <?= $statut === 'brouillon' ? 'selected' : '' ?>>📝 Brouillon</option>
+            <option value="programme" <?= $statut === 'programme' ? 'selected' : '' ?>>⏰ Programmé</option>
+          </select>
+          <p class="hint" id="statutHint">
+            <?php if ($statut === 'brouillon'): ?>
+              L'article ne sera pas visible sur le site.
+            <?php elseif ($statut === 'programme'): ?>
+              L'article sera publié automatiquement à la date prévue.
+            <?php else: ?>
+              L'article est visible immédiatement.
+            <?php endif; ?>
+          </p>
+        </div>
+      </div>
+      <div class="row">
         <div class="fg">
           <label for="image">Image (URL optionnelle)</label>
           <input class="fc" type="text" name="image" id="image" value="<?= $imageUrl ?>" placeholder="https://… ou vide" />
@@ -99,7 +136,7 @@ $action = $isEdit ? 'edit.php' : 'create.php';
         <textarea class="fc" name="contenu" id="contenu"><?= $contenu ?></textarea>
       </div>
       <div class="actions">
-        <button class="btn btn-primary" type="submit"><?= $isEdit ? 'Enregistrer' : 'Publier' ?></button>
+        <button class="btn btn-primary" type="submit" id="submitBtn"><?= $isEdit ? 'Enregistrer' : 'Publier' ?></button>
         <a class="btn btn-ghost" href="index.php">Annuler</a>
       </div>
     </form>
@@ -107,17 +144,76 @@ $action = $isEdit ? 'edit.php' : 'create.php';
   <script>
     (function () {
       var form = document.getElementById("articleForm");
+      var statutSel = document.getElementById("statut");
+      var dateInput = document.getElementById("date_publication");
+      var submitBtn = document.getElementById("submitBtn");
+      var statutHint = document.getElementById("statutHint");
+      var dateHint = document.getElementById("dateHint");
+      var isEdit = <?= $isEdit ? 'true' : 'false' ?>;
+
+      // Mettre à jour les hints et le bouton selon le statut
+      function updateUI() {
+        var s = statutSel.value;
+        var hints = {
+          'publie': "L'article est visible immédiatement.",
+          'brouillon': "L'article ne sera pas visible sur le site.",
+          'programme': "L'article sera publié automatiquement à la date prévue."
+        };
+        statutHint.textContent = hints[s] || '';
+
+        if (s === 'programme') {
+          dateHint.textContent = '⏰ La date doit être dans le futur pour la publication programmée.';
+          dateHint.style.color = '#1565c0';
+        } else {
+          dateHint.textContent = "Choisissez la date et l'heure de publication.";
+          dateHint.style.color = '#666';
+        }
+
+        // Bouton
+        if (!isEdit) {
+          var labels = { 'publie': 'Publier', 'brouillon': 'Enregistrer le brouillon', 'programme': 'Programmer' };
+          submitBtn.textContent = labels[s] || 'Enregistrer';
+        }
+      }
+      statutSel.addEventListener('change', updateUI);
+      updateUI();
+
+      // Validation front
       form.addEventListener("submit", function (e) {
         var titre = document.getElementById("titre").value.trim();
         var contenu = document.getElementById("contenu").value.trim();
-        var d = document.getElementById("date_publication").value.trim();
-        var ok = true;
-        if (titre.length < 3) ok = false;
-        if (contenu.length < 10) ok = false;
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) ok = false;
-        if (!ok) {
+        var d = dateInput.value.trim();
+        var msgs = [];
+
+        if (titre.length < 3) msgs.push("Le titre doit contenir au moins 3 caractères.");
+        if (contenu.length < 10) msgs.push("Le contenu doit contenir au moins 10 caractères.");
+        if (!d) msgs.push("La date de publication est obligatoire.");
+
+        // Si programmé : vérifier date future
+        if (statutSel.value === 'programme' && d) {
+          // Parser manuellement pour garantir l'interprétation en heure locale
+          var parts = d.split('T');
+          var dateParts = parts[0].split('-');
+          var timeParts = parts[1].split(':');
+          var chosen = new Date(
+            parseInt(dateParts[0], 10),
+            parseInt(dateParts[1], 10) - 1, // mois 0-indexé
+            parseInt(dateParts[2], 10),
+            parseInt(timeParts[0], 10),
+            parseInt(timeParts[1], 10),
+            0
+          );
+          // Tolérance de 5 minutes pour les petits décalages
+          var now = new Date();
+          now.setMinutes(now.getMinutes() - 5);
+          if (chosen <= now) {
+            msgs.push("La date de publication programmée doit être dans le futur.");
+          }
+        }
+
+        if (msgs.length > 0) {
           e.preventDefault();
-          alert("Vérifiez le titre (3 caractères min.), le contenu (10 min.) et la date (AAAA-MM-JJ). La validation serveur affichera aussi les erreurs.");
+          alert(msgs.join("\n"));
         }
       });
     })();

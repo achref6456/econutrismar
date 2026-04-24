@@ -13,6 +13,7 @@ class ApiBlogController
 
     public function vue(): void
     {
+        header('Content-Type: application/json');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['error' => 'Method Not Allowed']);
@@ -28,12 +29,12 @@ class ApiBlogController
         $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
         $this->model->trackView($id, $ip);
 
-        header('Content-Type: application/json');
         echo json_encode(['success' => true]);
     }
 
     public function like(): void
     {
+        header('Content-Type: application/json');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['error' => 'Method Not Allowed']);
@@ -49,7 +50,6 @@ class ApiBlogController
         $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
         $liked = $this->model->toggleLike($id, $ip);
 
-        header('Content-Type: application/json');
         echo json_encode(['success' => true, 'liked' => $liked]);
     }
 
@@ -93,8 +93,11 @@ class ApiBlogController
         if ($pseudo === '' || mb_strlen($pseudo) < 2) {
             $errors[] = 'Le pseudo doit contenir au moins 2 caractères.';
         }
-        if (mb_strlen($pseudo) > 100) {
-            $errors[] = 'Le pseudo ne doit pas dépasser 100 caractères.';
+        if (mb_strlen($pseudo) > 10) {
+            $errors[] = 'Le pseudo ne doit pas dépasser 10 caractères.';
+        }
+        if (!preg_match('/^[a-zA-ZÀ-ÿ\s]+$/u', $pseudo)) {
+            $errors[] = 'Le pseudo ne doit contenir que des lettres (pas de chiffres ni caractères spéciaux).';
         }
         if ($contenu === '' || mb_strlen($contenu) < 3) {
             $errors[] = 'Le commentaire doit contenir au moins 3 caractères.';
@@ -103,6 +106,28 @@ class ApiBlogController
         if ($errors !== []) {
             http_response_code(422);
             echo json_encode(['errors' => $errors]);
+            return;
+        }
+
+        // ── Filtre anti-insultes ──
+        $motsInterdits = ['bad', 'mauvais'];
+        $texteComplet  = mb_strtolower($pseudo . ' ' . $contenu);
+        $motsTrouves   = [];
+        foreach ($motsInterdits as $mot) {
+            // Recherche du mot entier (insensible à la casse)
+            if (preg_match('/\b' . preg_quote($mot, '/') . '\b/iu', $texteComplet)) {
+                $motsTrouves[] = $mot;
+            }
+        }
+        if ($motsTrouves !== []) {
+            http_response_code(422);
+            echo json_encode([
+                'errors' => [
+                    'Votre commentaire contient des mots interdits ('
+                    . implode(', ', $motsTrouves)
+                    . '). Veuillez reformuler votre message.'
+                ],
+            ]);
             return;
         }
 

@@ -81,7 +81,14 @@
       $src = $img !== '' ? $uploadBase . htmlspecialchars($img) : '';
     ?>
     <h1><?= htmlspecialchars($article['titre']) ?></h1>
-    <p class="meta"><?= htmlspecialchars($article['date_publication']) ?> · <?= htmlspecialchars(trim(($article['prenom'] ?? '') . ' ' . ($article['auteur_nom'] ?? ''))) ?></p>
+    <?php
+      $rawPubDate = (string) ($article['date_publication'] ?? '');
+      $dtPub = DateTime::createFromFormat('Y-m-d H:i:s', $rawPubDate)
+            ?: DateTime::createFromFormat('Y-m-d\TH:i', $rawPubDate)
+            ?: DateTime::createFromFormat('Y-m-d', $rawPubDate);
+      $displayDate = $dtPub ? $dtPub->format('d/m/Y H:i') : htmlspecialchars($rawPubDate);
+    ?>
+    <p class="meta"><?= $displayDate ?> · <?= htmlspecialchars(trim(($article['prenom'] ?? '') . ' ' . ($article['auteur_nom'] ?? ''))) ?></p>
     
     <button id="likeBtn" class="like-btn <?= $hasLiked ? 'liked' : '' ?>" data-id="<?= (int)$article['id_article'] ?>">
       <?= $hasLiked ? '❤️ Aimé' : '🤍 J\'aime' ?>
@@ -102,7 +109,8 @@
         <form id="commentForm">
           <div class="field">
             <label for="commentPseudo">Pseudo</label>
-            <input type="text" id="commentPseudo" name="pseudo" placeholder="Votre nom ou pseudo" maxlength="100" required />
+            <input type="text" id="commentPseudo" name="pseudo" placeholder="Votre nom ou pseudo" maxlength="10" pattern="[a-zA-ZÀ-ÿ\s]+" required />
+            <p style="font-size:.78rem;color:#888;margin-top:.25rem;">Max 10 caractères, lettres uniquement (pas de chiffres ni caractères spéciaux)</p>
           </div>
           <div class="field">
             <label for="commentContenu">Commentaire</label>

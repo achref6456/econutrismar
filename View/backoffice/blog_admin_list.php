@@ -32,6 +32,11 @@
     .actions a:hover { border-color:var(--green-main); color:var(--green-main); }
     .actions .danger:hover { border-color:#e53935; color:#e53935; }
     .empty { background:#fff; border:1.5px dashed var(--border); border-radius:14px; padding:2rem; text-align:center; color:#666; }
+    /* Statut badges */
+    .statut-badge { display:inline-flex; align-items:center; gap:.25rem; padding:.22rem .6rem; border-radius:50px; font-size:.74rem; font-weight:600; white-space:nowrap; }
+    .statut-badge.publie { background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; }
+    .statut-badge.brouillon { background:#fff3e0; color:#e65100; border:1px solid #ffcc80; }
+    .statut-badge.programme { background:#e3f2fd; color:#1565c0; border:1px solid #90caf9; }
     @media (max-width:800px) { body { flex-direction:column; } aside { width:100%; flex-direction:row; flex-wrap:wrap; align-items:center; } aside .logout { margin-top:0; width:100%; } }
   </style>
 </head>
@@ -70,6 +75,7 @@
               <th></th>
               <th>Titre</th>
               <th>Date</th>
+              <th>Statut</th>
               <th>👁️ Vues</th>
               <th>❤️ Likes</th>
               <th>Actions</th>
@@ -80,6 +86,16 @@
               <?php
                 $img = trim((string)($a['image'] ?? ''));
                 $thumb = $img !== '' ? $assetBase . htmlspecialchars($img) : '';
+                $st = (string) ($a['statut'] ?? 'publie');
+                $statutLabels = ['publie' => '✅ Publié', 'brouillon' => '📝 Brouillon', 'programme' => '⏰ Programmé'];
+                $statutLabel = $statutLabels[$st] ?? $st;
+                // Formater la date
+                $rawDate = (string) ($a['date_publication'] ?? '');
+                $dtObj = DateTime::createFromFormat('Y-m-d H:i:s', $rawDate)
+                      ?: DateTime::createFromFormat('Y-m-d\TH:i', $rawDate)
+                      ?: DateTime::createFromFormat('Y-m-d H:i', $rawDate)
+                      ?: DateTime::createFromFormat('Y-m-d', $rawDate);
+                $formattedDate = $dtObj ? $dtObj->format('d/m/Y H:i') : htmlspecialchars($rawDate);
               ?>
               <tr>
                 <td>
@@ -90,7 +106,8 @@
                   <?php endif; ?>
                 </td>
                 <td><strong><?= htmlspecialchars($a['titre']) ?></strong></td>
-                <td><?= htmlspecialchars($a['date_publication']) ?></td>
+                <td><?= $formattedDate ?></td>
+                <td><span class="statut-badge <?= htmlspecialchars($st) ?>"><?= $statutLabel ?></span></td>
                 <td><?= (int) ($a['vues'] ?? 0) ?></td>
                 <td><?= (int) ($a['likes'] ?? 0) ?></td>
                 <td>
