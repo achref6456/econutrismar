@@ -40,7 +40,8 @@
     tr { transition:background .15s; }
     tr:hover { background:#f9fdf6; }
     .comment-text { max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#333; }
-    .article-name { font-weight:500; color:var(--green-dark); }
+    .article-name { font-weight:500; color:var(--green-dark); text-decoration:none; transition:all .2s; }
+    .article-name:hover { color:var(--green-main); text-decoration:underline; }
 
     /* ─── Statut badges ─── */
     .statut { display:inline-flex; align-items:center; gap:.3rem; padding:.25rem .65rem; border-radius:50px; font-size:.76rem; font-weight:600; white-space:nowrap; }
@@ -192,7 +193,7 @@
         return `<tr id="row-${id}">
           <td><strong>${pseudo}</strong></td>
           <td><span class="comment-text" title="${contenu}">"${contenu}"</span></td>
-          <td><span class="article-name">${titre}</span></td>
+          <td><a class="article-name" href="../frontoffice/blog/article.php?id=${parseInt(c.article_id, 10)}" target="_blank" title="Voir l'article">${titre}</a></td>
           <td>${dateStr}</td>
           <td><span class="statut ${escapeHtml(c.statut)}">${statutLabel}</span></td>
           <td><div class="actions">${actionBtns}</div></td>

@@ -13,5 +13,10 @@
         "article_id": 1,
         "ip": "::1",
         "timestamp": 1776992783
+    },
+    {
+        "article_id": 7,
+        "ip": "::1",
+        "timestamp": 1777047861
     }
 ]

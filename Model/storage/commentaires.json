@@ -22,5 +22,13 @@
         "contenu": "good",
         "date_commentaire": "2026-04-24 02:07:00",
         "statut": "approuve"
+    },
+    {
+        "id_commentaire": 5,
+        "article_id": 7,
+        "pseudo": "oues",
+        "contenu": "tres bien",
+        "date_commentaire": "2026-04-24 17:33:37",
+        "statut": "approuve"
     }
 ]
