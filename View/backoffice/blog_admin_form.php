@@ -72,7 +72,7 @@ $action = $isEdit ? 'edit.php' : 'create.php';
     </div>
     <nav>
       <a class="active" href="index.php">Articles</a>
-      <a href="../frontoffice/blog/index.php" target="_blank" rel="noopener">Voir le site</a>
+      <a href="../frontoffice/blog/index.php">Voir le site</a>
     </nav>
     <div class="logout"><a href="logout.php">Déconnexion</a></div>
   </aside>

@@ -45,7 +45,7 @@
       <a href="index.php">Articles du blog</a>
       <a class="active" href="stats.php">Statistiques</a>
       <a href="commentaires.php" style="display:flex;align-items:center;gap:.5rem;">💬 Commentaires <span id="pendingBadge" style="background:#e53935;color:#fff;font-size:.68rem;font-weight:700;padding:.12rem .45rem;border-radius:50px;min-width:18px;text-align:center;display:none;"></span></a>
-      <a href="../frontoffice/blog/index.php" target="_blank" rel="noopener">Voir le blog (site)</a>
+      <a href="../frontoffice/blog/index.php">Voir le blog (site)</a>
     </nav>
     <div class="logout">
       Connecté : <?= htmlspecialchars($_SESSION['admin_name'] ?? 'Admin') ?><br />

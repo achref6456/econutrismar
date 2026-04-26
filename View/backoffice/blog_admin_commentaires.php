@@ -75,7 +75,7 @@
       <a href="index.php">Articles du blog</a>
       <a href="stats.php">Statistiques</a>
       <a class="active" href="commentaires.php">💬 Commentaires <span class="nav-badge" id="sidebarBadge"><?= $pendingCount ?></span></a>
-      <a href="../frontoffice/blog/index.php" target="_blank" rel="noopener">Voir le blog (site)</a>
+      <a href="../frontoffice/blog/index.php">Voir le blog (site)</a>
     </nav>
     <div class="logout">
       Connecté : <?= htmlspecialchars($_SESSION['admin_name'] ?? 'Admin') ?><br />
@@ -193,7 +193,7 @@
         return `<tr id="row-${id}">
           <td><strong>${pseudo}</strong></td>
           <td><span class="comment-text" title="${contenu}">"${contenu}"</span></td>
-          <td><a class="article-name" href="../frontoffice/blog/article.php?id=${parseInt(c.article_id, 10)}" target="_blank" title="Voir l'article">${titre}</a></td>
+          <td><a class="article-name" href="../frontoffice/blog/article.php?id=${parseInt(c.article_id, 10)}" title="Voir l'article">${titre}</a></td>
           <td>${dateStr}</td>
           <td><span class="statut ${escapeHtml(c.statut)}">${statutLabel}</span></td>
           <td><div class="actions">${actionBtns}</div></td>
