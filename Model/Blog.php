@@ -196,6 +196,8 @@ class Blog
                 return false;
             }
             $this->saveJsonArticles($rows);
+            // Nettoyer les vues et likes associés à l'article supprimé
+            $this->clearJsonStatsForArticle($id);
             return true;
         }
         $st = $this->pdo->prepare('DELETE FROM blog WHERE id_article = :id');
@@ -410,6 +412,20 @@ class Blog
             }
         }
         return $count;
+    }
+
+    /** Supprimer toutes les vues et likes associés à un article (nettoyage après suppression) */
+    private function clearJsonStatsForArticle(int $articleId): void
+    {
+        // Nettoyer les vues
+        $views = $this->loadJsonFile($this->viewsFile);
+        $views = array_values(array_filter($views, static fn(array $v): bool => (int) ($v['article_id'] ?? 0) !== $articleId));
+        $this->saveJsonFile($this->viewsFile, $views);
+
+        // Nettoyer les likes
+        $likes = $this->loadJsonFile($this->likesFile);
+        $likes = array_values(array_filter($likes, static fn(array $l): bool => (int) ($l['article_id'] ?? 0) !== $articleId));
+        $this->saveJsonFile($this->likesFile, $likes);
     }
 
     /** Normaliser une date (accepte T et espace) en format comparable Y-m-d H:i:s */

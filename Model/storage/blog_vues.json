@@ -1,27 +1,22 @@
 [
     {
-        "article_id": 4,
-        "ip": "::1",
-        "timestamp": 1776990903
-    },
-    {
         "article_id": 1,
         "ip": "::1",
         "timestamp": 1776990995
     },
     {
-        "article_id": 3,
+        "article_id": 1,
         "ip": "::1",
-        "timestamp": 1776991114
-    },
-    {
-        "article_id": 7,
-        "ip": "::1",
-        "timestamp": 1777047860
+        "timestamp": 1777148350
     },
     {
         "article_id": 1,
         "ip": "::1",
-        "timestamp": 1777148350
+        "timestamp": 1777318463
+    },
+    {
+        "article_id": 2,
+        "ip": "::1",
+        "timestamp": 1777318968
     }
 ]

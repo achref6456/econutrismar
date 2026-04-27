@@ -1,13 +1,5 @@
 [
     {
-        "id_commentaire": 2,
-        "article_id": 1,
-        "pseudo": "moj",
-        "contenu": "wwwwwwww",
-        "date_commentaire": "2026-04-24 01:20:29",
-        "statut": "approuve"
-    },
-    {
         "id_commentaire": 3,
         "article_id": 1,
         "pseudo": "med",
@@ -25,10 +17,18 @@
     },
     {
         "id_commentaire": 5,
-        "article_id": 7,
-        "pseudo": "oues",
-        "contenu": "tres bien",
-        "date_commentaire": "2026-04-24 17:33:37",
+        "article_id": 3,
+        "pseudo": "MED",
+        "contenu": "bien",
+        "date_commentaire": "2026-04-27 20:42:41",
         "statut": "approuve"
+    },
+    {
+        "id_commentaire": 6,
+        "article_id": 2,
+        "pseudo": "ali",
+        "contenu": "j'ai pas aimer",
+        "date_commentaire": "2026-04-27 20:43:02",
+        "statut": "refuse"
     }
 ]
