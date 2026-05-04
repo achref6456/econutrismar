@@ -41,6 +41,28 @@ switch ($page) {
         $controller->resetPasswordAjax();
         break;
 
+    case 'face-login':
+        require_once __DIR__ . '/View/auth/face-login.php';
+        break;
+
+    case 'face-login-process':
+        $userId = (int)($_POST['user_id'] ?? 0);
+        if ($userId > 0) {
+            require_once __DIR__ . '/Model/User.php';
+            $userModel = new User();
+            $user = $userModel->findById($userId);
+            if ($user && $user['role'] === 'admin') {
+                $_SESSION['user_id']   = $user['id'];
+                $_SESSION['user_nom']  = $user['nom'];
+                $_SESSION['user_role'] = $user['role'];
+                header('Location: index.php?page=backoffice');
+                exit;
+            }
+        }
+        header('Location: index.php?page=login');
+        exit;
+        break;
+
     case 'logout':
         $controller = new AuthController();
         $controller->logout();

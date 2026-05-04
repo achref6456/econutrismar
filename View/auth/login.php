@@ -222,6 +222,13 @@
 
       <button type="submit" class="btn-submit">Se connecter →</button>
     </form>
+
+    <div style="text-align:center; margin-top:1rem;">
+      <a href="index.php?page=face-login"
+         style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.4rem;border:1.5px solid var(--green-main);border-radius:50px;color:var(--green-dark);font-size:0.85rem;font-weight:600;text-decoration:none;transition:all 0.2s;background:var(--green-pale);">
+        🔐 Se connecter avec le visage
+      </a>
+    </div>
   </div>
 
   <div class="card-foot">
