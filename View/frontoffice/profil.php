@@ -1,27 +1,60 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EcoNutri – Mon Profil</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
+    /* ── Light mode (défaut) ── */
     :root {
       --green-dark:#2d6a1f; --green-main:#4a9e30; --green-light:#7ec44f;
       --green-pale:#e8f5e1; --orange:#f07c1b; --black:#111; --grey:#666;
       --white:#fff; --border:#e4eed9; --bg:#f2f8ee;
       --red:#e53935; --red-light:#fdecea;
+      --card-bg:#fff; --text:#111; --text-muted:#666;
+    }
+    /* ── Dark mode ── */
+    [data-theme="dark"] {
+      --bg:#0f1a0d;
+      --white:#1a2e17;
+      --card-bg:#1a2e17;
+      --border:#2a4a24;
+      --black:#e8f5e1;
+      --grey:#9ab89a;
+      --text:#e8f5e1;
+      --text-muted:#9ab89a;
+      --green-pale:#1a3318;
+      --red-light:#2a1515;
     }
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     body {
       font-family:"DM Sans",sans-serif;
       min-height:100vh; background:var(--bg);
       display:grid; place-items:center; padding:2rem;
+      transition:background 0.3s, color 0.3s;
     }
+
+    /* ── Bouton dark/light ── */
+    .theme-toggle {
+      position:fixed; top:1.2rem; right:1.2rem;
+      width:44px; height:44px;
+      border-radius:50%;
+      background:var(--card-bg);
+      border:2px solid var(--border);
+      cursor:pointer;
+      display:grid; place-items:center;
+      font-size:1.3rem;
+      box-shadow:0 4px 14px rgba(0,0,0,0.15);
+      transition:all 0.3s;
+      z-index:100;
+    }
+    .theme-toggle:hover { transform:scale(1.1); border-color:var(--green-main); }
     .card {
-      background:var(--white); border-radius:24px;
+      background:var(--card-bg); border-radius:24px;
       box-shadow:0 20px 60px rgba(45,106,31,0.15);
       width:min(600px, 100%); overflow:hidden;
+      transition:background 0.3s;
     }
     .card-head {
       background:linear-gradient(135deg, var(--green-dark), var(--green-main));
@@ -84,14 +117,17 @@
 
     /* ── QR Code ── */
     .qr-section { text-align:center; }
-    .qr-section h3 { font-family:"Playfair Display",serif; font-size:1rem; color:var(--black); margin-bottom:0.8rem; }
-    .qr-box { display:inline-block; background:var(--white); border:2px solid var(--border); border-radius:16px; padding:1rem; box-shadow:0 4px 16px rgba(45,106,31,0.08); }
-    .qr-box canvas, .qr-box img { display:block; }
-    .qr-label { font-size:0.75rem; color:var(--grey); margin-top:0.6rem; }
-    .btn-dl-qr { display:inline-flex; align-items:center; gap:0.4rem; margin-top:0.8rem; padding:0.5rem 1.2rem; border:1.5px solid var(--green-main); border-radius:50px; background:var(--white); color:var(--green-dark); font-family:"DM Sans",sans-serif; font-size:0.83rem; font-weight:600; cursor:pointer; text-decoration:none; transition:all 0.2s; }
+    .qr-section h3 { font-family:"Playfair Display",serif; font-size:1rem; color:var(--black); margin-bottom:1rem; }
+    .qr-card { display:inline-block; background:var(--white); border:2px solid var(--border); border-radius:20px; padding:1.5rem 2rem; box-shadow:0 8px 28px rgba(45,106,31,0.12); min-width:240px; }
+    .qr-card-header { display:flex; align-items:center; justify-content:center; gap:0.6rem; margin-bottom:1rem; padding-bottom:0.8rem; border-bottom:1.5px solid var(--border); }
+    .qr-logo-icon { width:36px; height:36px; background:linear-gradient(135deg,var(--green-dark),var(--green-main)); border-radius:10px; display:grid; place-items:center; font-size:1.2rem; }
+    .qr-logo-text { font-family:"Playfair Display",serif; font-size:1.2rem; color:var(--green-dark); font-weight:700; }
+    .qr-logo-text span { color:var(--orange); }
+    .qr-img-wrap { display:flex; justify-content:center; margin-bottom:0.5rem; }
+    .qr-label { font-size:0.75rem; color:var(--grey); margin-top:0.4rem; }
+    .qr-card-footer { margin-top:0.8rem; padding-top:0.8rem; border-top:1.5px solid var(--border); font-size:0.78rem; color:var(--green-dark); font-weight:600; }
+    .btn-dl-qr { display:inline-flex; align-items:center; gap:0.4rem; margin-top:1rem; padding:0.5rem 1.2rem; border:1.5px solid var(--green-main); border-radius:50px; background:var(--white); color:var(--green-dark); font-family:"DM Sans",sans-serif; font-size:0.83rem; font-weight:600; cursor:pointer; text-decoration:none; transition:all 0.2s; }
     .btn-dl-qr:hover { background:var(--green-pale); }
-
-    /* ── Maps ── */
     .map-section h3 { font-family:"Playfair Display",serif; font-size:1rem; color:var(--black); margin-bottom:0.8rem; }
     .map-wrap { border-radius:14px; overflow:hidden; border:2px solid var(--border); height:260px; background:var(--bg); display:flex; align-items:center; justify-content:center; }
     .map-wrap iframe { width:100%; height:100%; border:none; }
@@ -106,6 +142,9 @@
   </style>
 </head>
 <body>
+
+<!-- Bouton Dark/Light -->
+<button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Changer le thème">🌙</button>
 
 <div class="card">
   <div class="card-head">
@@ -157,12 +196,28 @@
     <!-- ── QR Code du profil ── -->
     <div class="qr-section">
       <h3>📱 Mon QR Code</h3>
-      <div class="qr-box">
-        <canvas id="qrCanvas"></canvas>
+      <div class="qr-card">
+        <!-- Header avec logo -->
+        <div class="qr-card-header">
+          <div class="qr-logo-icon">🌿</div>
+          <span class="qr-logo-text">Eco<span>Nutri</span></span>
+        </div>
+        <!-- QR Code -->
+        <div class="qr-img-wrap">
+          <?php
+            $carteUrl = "http://" . $_SERVER['HTTP_HOST'] . "/econutrismar/index.php?page=carte&id=" . $user['id'];
+            $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=2d6a1f&bgcolor=ffffff&qzone=2&data=" . urlencode($carteUrl);
+          ?>
+          <img src="<?= $qrUrl ?>" alt="QR Code profil" width="200" height="200" style="display:block;border-radius:8px;" />
+        </div>
         <div class="qr-label">Scannez pour voir mon profil</div>
+        <!-- Footer -->
+        <div class="qr-card-footer">
+          🌿 <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?>
+        </div>
       </div>
       <br>
-      <a id="btnDlQr" class="btn-dl-qr" download="qr-econutri.png">⬇️ Télécharger le QR Code</a>
+      <a href="<?= $qrUrl ?>&format=png" download="qr-econutri.png" class="btn-dl-qr">⬇️ Télécharger le QR Code</a>
     </div>
 
     <div class="divider"></div>
@@ -225,7 +280,7 @@
 </div>
 
 <!-- QR Code library (local) -->
-<script src="qrcode.min.js"></script>
+<script src="/econutrismar/qrcode.min.js"></script>
 <script>
 function previewAvatar(input) {
   const preview = document.getElementById('avatarPreview');
@@ -300,37 +355,21 @@ function changeMonth(dir) {
 
 renderCalendar();
 
-// ── QR Code ──────────────────────────────────────────────────────────────
-(function() {
-  // QR Code contient les infos du profil directement (scannable sans réseau)
-  const qrData = [
-    '👤 EcoNutri - Profil',
-    'Nom    : <?= htmlspecialchars($user["prenom"]." ".$user["nom"]) ?>',
-    'Email  : <?= htmlspecialchars($user["email"]) ?>',
-    'Rôle   : <?= $user["role"] === "admin" ? "Administrateur" : "Utilisateur" ?>',
-    'Membre : <?= date("d/m/Y", strtotime($user["created_at"])) ?>'
-  ].join('\n');
+// ── Dark / Light Mode ────────────────────────────────────────────────────
+const themeBtn = document.getElementById('themeBtn');
+const htmlEl   = document.documentElement;
 
-  const canvas = document.getElementById('qrCanvas');
-  new QRCode(canvas, {
-    text:          qrData,
-    width:         160,
-    height:        160,
-    colorDark:     '#2d6a1f',
-    colorLight:    '#ffffff',
-    correctLevel:  QRCode.CorrectLevel.H
-  });
+const savedTheme = localStorage.getItem('theme') || 'light';
+htmlEl.setAttribute('data-theme', savedTheme);
+themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 
-  // Bouton téléchargement — attendre que le canvas soit rendu
-  setTimeout(() => {
-    const btn = document.getElementById('btnDlQr');
-    const img = canvas.querySelector('img') || canvas.querySelector('canvas');
-    if (img) {
-      const src = img.tagName === 'IMG' ? img.src : img.toDataURL('image/png');
-      btn.href = src;
-    }
-  }, 300);
-})();
+function toggleTheme() {
+  const current = htmlEl.getAttribute('data-theme');
+  const next    = current === 'dark' ? 'light' : 'dark';
+  htmlEl.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+}
 </script>
 </body>
 </html>

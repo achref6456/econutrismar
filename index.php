@@ -52,7 +52,7 @@ switch ($page) {
             header('Location: index.php?page=login');
             exit;
         }
-        require_once __DIR__ . '/View/backoffice/index.html';
+        require_once __DIR__ . '/View/backoffice/index.php';
         break;
 
     // ── CRUD Utilisateurs (admin requis) ──────────────────────────────────
@@ -102,5 +102,9 @@ switch ($page) {
         } else {
             $controller->show();
         }
+        break;
+
+    case 'carte':
+        require_once __DIR__ . '/View/frontoffice/carte.php';
         break;
 }

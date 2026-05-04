@@ -5,7 +5,7 @@ $registerErrors = $registerErrors ?? [];
 $registerPost   = $registerPost   ?? [];
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,6 +27,38 @@ $registerPost   = $registerPost   ?? [];
         --white: #fff;
         --card-bg: #f9fdf6;
         --border: #d9eed0;
+        --bg-body: #fff;
+        --text: #111;
+      }
+
+      /* ── Dark mode ── */
+      [data-theme="dark"] {
+        --white: #0f1a0d;
+        --bg-body: #0f1a0d;
+        --card-bg: #1a2e17;
+        --black: #e8f5e1;
+        --text: #e8f5e1;
+        --grey: #9ab89a;
+        --border: #2a4a24;
+        --green-pale: #1a3318;
+        --orange-light: #2a1a0a;
+      }
+
+      /* ── Bouton dark/light ── */
+      .theme-toggle {
+        width: 38px; height: 38px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.15);
+        border: 1.5px solid rgba(255,255,255,0.3);
+        cursor: pointer;
+        display: grid; place-items: center;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+        flex-shrink: 0;
+      }
+      .theme-toggle:hover {
+        background: rgba(255,255,255,0.25);
+        transform: scale(1.1);
       }
 
       *,
@@ -43,9 +75,10 @@ $registerPost   = $registerPost   ?? [];
 
       body {
         font-family: "DM Sans", sans-serif;
-        background: var(--white);
-        color: var(--black);
+        background: var(--bg-body);
+        color: var(--text);
         overflow-x: hidden;
+        transition: background 0.3s, color 0.3s;
       }
 
       /* ═══════════════════════════════════════════════
@@ -1632,6 +1665,7 @@ $registerPost   = $registerPost   ?? [];
              style="background:#e53935;color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:50px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:background 0.2s;">
             🚪 Déconnexion
           </a>
+          <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Mode sombre/clair">🌙</button>
         <?php else: ?>
           <button class="btn-login" onclick="openModal('login')">
             Se connecter
@@ -2774,6 +2808,24 @@ $registerPost   = $registerPost   ?? [];
           }, 1500);
         }
       });
+    </script>
+
+    <script>
+      // ── Dark / Light Mode ──────────────────────────────────────────────
+      const themeBtn = document.getElementById('themeBtn');
+      const htmlEl   = document.documentElement;
+
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      htmlEl.setAttribute('data-theme', savedTheme);
+      if (themeBtn) themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+      function toggleTheme() {
+        const current = htmlEl.getAttribute('data-theme');
+        const next    = current === 'dark' ? 'light' : 'dark';
+        htmlEl.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        if (themeBtn) themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+      }
     </script>
   </body>
 </html>

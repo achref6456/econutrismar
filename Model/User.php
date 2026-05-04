@@ -122,7 +122,7 @@ class User {
     }
 
     public function updatePassword(string $email, string $newPassword): bool {
-        $hash = password_hash($newPassword, PASSWORD_BCRYPT);
+        $hash = password_hash($newPassword, PASSWORD_ARGON2ID);
         $stmt = $this->pdo->prepare("UPDATE users SET password = ? WHERE email = ?");
         return $stmt->execute([$hash, $email]);
     }

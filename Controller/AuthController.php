@@ -54,7 +54,7 @@ class AuthController {
                         setcookie('remember_token', '', time() - 3600, '/');
                     }
 
-                    if ($user['role'] === 'admin') {
+                    if ($user['role'] === 'admin' && !isset($_POST['modal'])) {
                         header('Location: index.php?page=backoffice');
                     } else {
                         header('Location: index.php?page=frontoffice');
@@ -224,8 +224,13 @@ class AuthController {
 
     // ── Déconnexion ───────────────────────────────────────────────────────
     public function logout(): void {
+        $role = $_SESSION['user_role'] ?? 'user';
         session_destroy();
-        header('Location: index.php?page=login');
+        if ($role === 'admin') {
+            header('Location: index.php?page=login');
+        } else {
+            header('Location: index.php?page=frontoffice');
+        }
         exit;
     }
 }
