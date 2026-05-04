@@ -1,0 +1,14 @@
+# Fichiers sensibles
+config/mailer.php
+
+# Uploads utilisateurs
+uploads/avatars/*
+!uploads/avatars/.gitkeep
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+*.log
+
+# ZIP
+*.zip
