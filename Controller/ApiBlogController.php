@@ -137,6 +137,71 @@ class ApiBlogController
         echo json_encode(['success' => true, 'id' => $id]);
     }
 
+    /** PUT/POST — Modifier le contenu d'un commentaire (remet en_attente) */
+    public function updateComment(): void
+    {
+        header('Content-Type: application/json');
+
+        if (!in_array($_SERVER['REQUEST_METHOD'], ['PUT', 'POST'], true)) {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+            return;
+        }
+
+        $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+        if ($id < 1) {
+            http_response_code(400);
+            echo json_encode(['error' => 'ID commentaire invalide']);
+            return;
+        }
+
+        $input = json_decode((string) file_get_contents('php://input'), true);
+        $contenu = trim((string) ($input['contenu'] ?? ($_POST['contenu'] ?? '')));
+
+        $errors = [];
+        if ($contenu === '' || mb_strlen($contenu) < 3) {
+            $errors[] = 'Le commentaire doit contenir au moins 3 caractères.';
+        }
+
+        if ($errors !== []) {
+            http_response_code(422);
+            echo json_encode(['errors' => $errors]);
+            return;
+        }
+
+        // ── Filtre anti-insultes ──
+        $motsInterdits = ['bad', 'mauvais'];
+        $texteComplet  = mb_strtolower($contenu);
+        $motsTrouves   = [];
+        foreach ($motsInterdits as $mot) {
+            if (preg_match('/\b' . preg_quote($mot, '/') . '\b/iu', $texteComplet)) {
+                $motsTrouves[] = $mot;
+            }
+        }
+        if ($motsTrouves !== []) {
+            http_response_code(422);
+            echo json_encode([
+                'errors' => [
+                    'Votre commentaire contient des mots interdits ('
+                    . implode(', ', $motsTrouves)
+                    . '). Veuillez reformuler votre message.'
+                ],
+            ]);
+            return;
+        }
+
+        $commentModel = new Commentaire();
+        $ok = $commentModel->update($id, $contenu);
+
+        if (!$ok) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Commentaire introuvable']);
+            return;
+        }
+
+        echo json_encode(['success' => true]);
+    }
+
     /** GET — Récupérer les commentaires approuvés d'un article */
     public function getComments(): void
     {

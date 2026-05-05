@@ -22,6 +22,15 @@
     .meta { color:#666; font-size:.88rem; margin-bottom:1.5rem; }
     .hero-img { width:100%; border-radius:16px; margin-bottom:1.5rem; border:1.5px solid var(--border); }
     .content { background:#fff; border:1.5px solid var(--border); border-radius:16px; padding:1.5rem 1.35rem; white-space:pre-wrap; }
+    .quiz-qr-banner { display:flex; flex-wrap:wrap; align-items:center; gap:1rem; background:#fff; border:1.5px solid var(--border); border-radius:16px; padding:1rem 1.15rem; margin-bottom:1.25rem; }
+    .quiz-qr-text strong { display:block; color:var(--green-dark); font-size:.95rem; margin-bottom:.25rem; }
+    .quiz-qr-text span { font-size:.85rem; color:#555; line-height:1.45; }
+    .quiz-qr-img { text-align:center; margin-left:auto; }
+    .quiz-qr-img .js-qr-inner img, .quiz-qr-img .js-qr-inner canvas { display:block; margin:0 auto .4rem; border-radius:10px; border:1px solid var(--border); width:110px; height:110px; }
+    .quiz-qr-img > a:first-of-type { display:inline-block; line-height:0; }
+    .quiz-qr-img a:last-of-type { display:block; margin-top:.35rem; font-size:.8rem; color:var(--green-main); font-weight:600; text-decoration:none; }
+    .quiz-qr-img a:last-of-type:hover { text-decoration:underline; }
+
     .like-btn { background:none; border:2px solid var(--border); border-radius:50px; padding:.5rem 1.25rem; font-size:1.1rem; cursor:pointer; display:inline-flex; align-items:center; gap:.5rem; margin-bottom:1.5rem; transition:all 0.2s; font-family:"DM Sans",sans-serif; font-weight:600; color:#555; }
     .like-btn:hover { border-color:var(--orange); color:var(--orange); }
     .like-btn.liked { background:#fff0e6; border-color:var(--orange); color:var(--orange); }
@@ -62,6 +71,26 @@
     .no-comments { text-align:center; color:#888; font-size:.92rem; padding:1.5rem; background:#fff; border:1.5px dashed var(--border); border-radius:14px; }
     .comment-errors { list-style:none; }
     .comment-errors li { font-size:.85rem; }
+
+    /* ─── Bouton Modifier ─── */
+    .comment-edit-btn { background:none; border:1.5px solid var(--border); border-radius:8px; padding:.25rem .7rem; font-size:.78rem; color:#888; cursor:pointer; font-family:inherit; transition:all .2s; display:inline-flex; align-items:center; gap:.25rem; }
+    .comment-edit-btn:hover { border-color:var(--green-main); color:var(--green-main); background:#f0fbe8; }
+    .comment-actions { display:flex; gap:.5rem; margin-top:.6rem; }
+
+    /* ─── Formulaire inline ─── */
+    .edit-form { display:none; margin-top:.6rem; }
+    .edit-form.active { display:block; }
+    .edit-form textarea { width:100%; padding:.55rem .75rem; border:1.5px solid var(--border); border-radius:10px; font-family:inherit; font-size:.9rem; background:var(--bg); resize:vertical; min-height:70px; transition:border-color .2s; }
+    .edit-form textarea:focus { outline:none; border-color:var(--green-main); background:#fff; }
+    .edit-form .edit-btns { display:flex; gap:.5rem; margin-top:.5rem; }
+    .edit-form .save-btn { background:linear-gradient(135deg,var(--green-dark),var(--green-main)); color:#fff; border:none; padding:.4rem 1.1rem; border-radius:50px; font-weight:600; font-size:.82rem; cursor:pointer; font-family:inherit; transition:opacity .2s; }
+    .edit-form .save-btn:hover { opacity:.9; }
+    .edit-form .save-btn:disabled { opacity:.5; cursor:not-allowed; }
+    .edit-form .cancel-btn { background:none; border:1.5px solid var(--border); color:#777; padding:.4rem 1rem; border-radius:50px; font-size:.82rem; cursor:pointer; font-family:inherit; transition:all .2s; }
+    .edit-form .cancel-btn:hover { border-color:#ccc; color:#555; }
+    .edit-flash { padding:.5rem .75rem; border-radius:10px; font-size:.82rem; margin-top:.5rem; animation:fadeIn .3s ease; }
+    .edit-flash.success { background:#e8f5e1; border:1px solid var(--border); color:var(--green-dark); }
+    .edit-flash.error { background:#fce4e4; border:1px solid #e8b4b4; color:#a33; }
   </style>
 </head>
 <body>
@@ -89,7 +118,26 @@
       $displayDate = $dtPub ? $dtPub->format('d/m/Y H:i') : htmlspecialchars($rawPubDate);
     ?>
     <p class="meta"><?= $displayDate ?> · <?= htmlspecialchars(trim(($article['prenom'] ?? '') . ' ' . ($article['auteur_nom'] ?? ''))) ?></p>
-    
+
+    <?php
+      $qTok = trim((string) ($article['quiz_token'] ?? ''));
+      $quizUrl = $qTok !== '' ? SiteUrl::quizAbsoluteUrl($qTok) : '';
+    ?>
+    <?php if ($quizUrl !== ''): ?>
+      <div class="quiz-qr-banner">
+        <div class="quiz-qr-text">
+          <strong>Quiz sur cet article</strong>
+          <span>Scannez le code avec votre téléphone : une page s’ouvre avec 3 questions sur le thème de l’article, puis votre score.</span>
+        </div>
+        <div class="quiz-qr-img">
+          <a href="<?= htmlspecialchars($quizUrl) ?>" title="Quiz — même onglet sur le PC">
+            <span class="js-qr" data-qr-url="<?= htmlspecialchars($quizUrl) ?>"><span class="js-qr-inner"></span></span>
+          </a>
+          <a href="<?= htmlspecialchars($quizUrl) ?>">Ouvrir le quiz</a>
+        </div>
+      </div>
+    <?php endif; ?>
+
     <button id="likeBtn" class="like-btn <?= $hasLiked ? 'liked' : '' ?>" data-id="<?= (int)$article['id_article'] ?>">
       <?= $hasLiked ? '❤️ Aimé' : '🤍 J\'aime' ?>
     </button>
@@ -174,12 +222,24 @@
             const dateStr = d.toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
             const pseudo = escapeHtml(c.pseudo);
             const body   = escapeHtml(c.contenu);
-            return `<div class="comment-card">
+            const cid    = c.id_commentaire;
+            return `<div class="comment-card" id="comment-${cid}">
               <div class="comment-header">
                 <span class="comment-author">👤 ${pseudo}</span>
                 <span class="comment-date">${dateStr}</span>
               </div>
-              <div class="comment-body">${body.replace(/\n/g, '<br>')}</div>
+              <div class="comment-body" id="body-${cid}">${body.replace(/\n/g, '<br>')}</div>
+              <div class="comment-actions">
+                <button class="comment-edit-btn" onclick="toggleEditForm(${cid})">✏️ Modifier</button>
+              </div>
+              <div class="edit-form" id="editForm-${cid}">
+                <textarea id="editText-${cid}">${escapeHtml(c.contenu)}</textarea>
+                <div id="editFlash-${cid}"></div>
+                <div class="edit-btns">
+                  <button class="save-btn" id="saveBtn-${cid}" onclick="saveEdit(${cid})">💾 Enregistrer</button>
+                  <button class="cancel-btn" onclick="toggleEditForm(${cid})">Annuler</button>
+                </div>
+              </div>
             </div>`;
           }).join('');
         })
@@ -235,8 +295,77 @@
       return div.innerHTML;
     }
 
+    // ─── Modifier un commentaire ───
+    function toggleEditForm(id) {
+      const form = document.getElementById('editForm-' + id);
+      form.classList.toggle('active');
+      // Effacer le flash quand on ferme
+      if (!form.classList.contains('active')) {
+        const flash = document.getElementById('editFlash-' + id);
+        if (flash) flash.innerHTML = '';
+      }
+    }
+
+    function saveEdit(id) {
+      const btn   = document.getElementById('saveBtn-' + id);
+      const flash = document.getElementById('editFlash-' + id);
+      const text  = document.getElementById('editText-' + id).value.trim();
+
+      btn.disabled = true;
+      btn.textContent = 'Envoi…';
+
+      fetch('../../api/blog_commentaire_update.php?id=' + id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contenu: text })
+      })
+      .then(res => res.json().then(data => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok || data.errors) {
+          const msgs = data.errors || [data.error || 'Une erreur est survenue.'];
+          flash.className = 'edit-flash error';
+          flash.innerHTML = msgs.map(m => '⚠️ ' + escapeHtml(m)).join('<br>');
+        } else {
+          flash.className = 'edit-flash success';
+          flash.textContent = '✅ Commentaire modifié ! Il sera de nouveau visible après modération.';
+          // Recharger les commentaires après un court délai
+          setTimeout(() => loadComments(), 1500);
+        }
+      })
+      .catch(() => {
+        flash.className = 'edit-flash error';
+        flash.textContent = '❌ Erreur réseau. Veuillez réessayer.';
+      })
+      .finally(() => {
+        btn.disabled = false;
+        btn.textContent = '💾 Enregistrer';
+      });
+    }
+
     // Charger les commentaires au démarrage
     loadComments();
   </script>
+  <?php if (isset($quizUrl) && $quizUrl !== ''): ?>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
+  <script>
+    (function () {
+      function run() {
+        if (typeof QRCode === "undefined") return;
+        document.querySelectorAll(".js-qr[data-qr-url]").forEach(function (w) {
+          var url = w.getAttribute("data-qr-url");
+          if (!url) return;
+          var inner = w.querySelector(".js-qr-inner");
+          if (!inner) return;
+          inner.innerHTML = "";
+          try {
+            new QRCode(inner, { text: url, width: 110, height: 110, correctLevel: QRCode.CorrectLevel.L });
+          } catch (e) {}
+        });
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run);
+      else run();
+    })();
+  </script>
+  <?php endif; ?>
 </body>
 </html>

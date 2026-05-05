@@ -23,6 +23,9 @@ CREATE TABLE IF NOT EXISTS blog (
   image VARCHAR(512) NOT NULL DEFAULT '',
   statut VARCHAR(20) NOT NULL DEFAULT 'publie',
   user_id INT UNSIGNED NOT NULL,
+  quiz_token VARCHAR(64) NULL DEFAULT NULL,
+  quiz_json LONGTEXT NULL,
+  UNIQUE KEY uq_blog_quiz_token (quiz_token),
   CONSTRAINT fk_blog_user FOREIGN KEY (user_id) REFERENCES utilisateur (id_user) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

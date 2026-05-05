@@ -24,11 +24,13 @@ class AdminBlogController
         $this->requireAuth();
         // Auto-publier les articles programmés dont la date est dépassée
         $this->model->publishScheduled();
-        $articles = $this->model->findAllForAdmin();
+        $tri = isset($_GET['tri']) ? trim((string) $_GET['tri']) : 'date_desc';
+        $articles = $this->model->findAllForAdmin(null, $tri);
         $flash = $_SESSION['flash'] ?? null;
         unset($_SESSION['flash']);
         $pageTitle = 'Gestion du blog';
         $assetBase = '../';
+        $sortCurrent = $tri;
         require dirname(__DIR__) . '/View/backoffice/blog_admin_list.php';
     }
 
@@ -53,6 +55,7 @@ class AdminBlogController
     public function createForm(): void
     {
         $this->requireAuth();
+        $this->model->ensureQuizTokensForAll();
         $article = null;
         $errors = $_SESSION['form_errors'] ?? [];
         $old = $_SESSION['form_old'] ?? [];
@@ -66,6 +69,7 @@ class AdminBlogController
                 'statut'           => $old['statut'] ?? 'publie',
             ];
         }
+        $quizForm = $this->buildQuizFormStateFromRequestOrArticle($old, $article);
         $pageTitle = 'Nouvel article';
         $assetBase = '../';
         require dirname(__DIR__) . '/View/backoffice/blog_admin_form.php';
@@ -80,6 +84,9 @@ class AdminBlogController
         }
         $data = $this->sanitizeInput();
         $errors = $this->validateArticle($data);
+        $quizParsed = $this->parseQuizFromRequest();
+        $errors = array_merge($errors, $quizParsed['errors']);
+        $data['quiz_json'] = $quizParsed['json'];
         $imagePath = $this->handleUpload($errors);
 
         if ($errors !== []) {
@@ -114,6 +121,7 @@ class AdminBlogController
             header('Location: index.php');
             exit;
         }
+        $this->model->ensureQuizTokensForAll();
         $article = $this->model->findById($id);
         if ($article === null) {
             $_SESSION['flash'] = 'Article introuvable.';
@@ -132,6 +140,7 @@ class AdminBlogController
                 'statut'           => $old['statut'] ?? $article['statut'] ?? 'publie',
             ]);
         }
+        $quizForm = $this->buildQuizFormStateFromRequestOrArticle($old, $article);
         $pageTitle = 'Modifier l’article';
         $assetBase = '../';
         require dirname(__DIR__) . '/View/backoffice/blog_admin_form.php';
@@ -158,6 +167,13 @@ class AdminBlogController
 
         $data = $this->sanitizeInput();
         $errors = $this->validateArticle($data);
+        $quizParsed = $this->parseQuizFromRequest();
+        $errors = array_merge($errors, $quizParsed['errors']);
+        $data['quiz_json'] = $quizParsed['json'];
+        $data['quiz_token'] = trim((string) ($existing['quiz_token'] ?? ''));
+        if ($data['quiz_token'] === '') {
+            $data['quiz_token'] = bin2hex(random_bytes(16));
+        }
         $imagePath = $this->handleUpload($errors);
         if ($imagePath !== null) {
             $data['image'] = $imagePath;
@@ -273,5 +289,103 @@ class AdminBlogController
             return null;
         }
         return 'uploads/blog/' . $name;
+    }
+
+    /**
+     * @param array<string,mixed> $old
+     * @param array<string,mixed>|null $article
+     *
+     * @return array<int, array{text:string,c0:string,c1:string,c2:string,correct:int}>
+     */
+    private function buildQuizFormStateFromRequestOrArticle(array $old, ?array $article): array
+    {
+        $blank = static fn(): array => ['text' => '', 'c0' => '', 'c1' => '', 'c2' => '', 'correct' => 0];
+        $state = [1 => $blank(), 2 => $blank(), 3 => $blank()];
+        if ($old !== []) {
+            for ($i = 1; $i <= 3; $i++) {
+                $state[$i]['text'] = trim((string) ($old['quiz_q' . $i . '_text'] ?? ''));
+                $state[$i]['c0'] = trim((string) ($old['quiz_q' . $i . '_c0'] ?? ''));
+                $state[$i]['c1'] = trim((string) ($old['quiz_q' . $i . '_c1'] ?? ''));
+                $state[$i]['c2'] = trim((string) ($old['quiz_q' . $i . '_c2'] ?? ''));
+                $state[$i]['correct'] = (int) ($old['quiz_q' . $i . '_correct'] ?? 0);
+            }
+
+            return $state;
+        }
+        if ($article !== null) {
+            $raw = (string) ($article['quiz_json'] ?? '');
+            $j = json_decode($raw, true);
+            if (is_array($j) && count($j) === 3) {
+                foreach ([1, 2, 3] as $idx => $num) {
+                    $qi = $j[$idx];
+                    if (!is_array($qi)) {
+                        continue;
+                    }
+                    $ch = $qi['choices'] ?? [];
+                    $state[$num]['text'] = (string) ($qi['question'] ?? '');
+                    $state[$num]['c0'] = (string) ($ch[0] ?? '');
+                    $state[$num]['c1'] = (string) ($ch[1] ?? '');
+                    $state[$num]['c2'] = (string) ($ch[2] ?? '');
+                    $state[$num]['correct'] = (int) ($qi['correct'] ?? 0);
+                }
+            }
+        }
+
+        return $state;
+    }
+
+    /** @return array{errors: list<string>, json: ?string} */
+    private function parseQuizFromRequest(): array
+    {
+        $blocks = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $text = trim((string) ($_POST['quiz_q' . $i . '_text'] ?? ''));
+            $c0 = trim((string) ($_POST['quiz_q' . $i . '_c0'] ?? ''));
+            $c1 = trim((string) ($_POST['quiz_q' . $i . '_c1'] ?? ''));
+            $c2 = trim((string) ($_POST['quiz_q' . $i . '_c2'] ?? ''));
+            $corr = (int) ($_POST['quiz_q' . $i . '_correct'] ?? 0);
+            $blocks[$i] = ['text' => $text, 'c0' => $c0, 'c1' => $c1, 'c2' => $c2, 'corr' => $corr];
+        }
+        $started = 0;
+        foreach ($blocks as $i => $b) {
+            $any = $b['text'] !== '' || $b['c0'] !== '' || $b['c1'] !== '' || $b['c2'] !== '';
+            if (!$any) {
+                continue;
+            }
+            $started++;
+            if ($b['text'] === '' || $b['c0'] === '' || $b['c1'] === '' || $b['c2'] === '') {
+                return [
+                    'errors' => ['Quiz : la question ' . $i . ' est incomplète (énoncé et 3 réponses obligatoires).'],
+                    'json'   => null,
+                ];
+            }
+            if ($b['corr'] < 0 || $b['corr'] > 2) {
+                return [
+                    'errors' => ['Quiz : bonne réponse invalide pour la question ' . $i . '.'],
+                    'json'   => null,
+                ];
+            }
+        }
+        if ($started === 0) {
+            return ['errors' => [], 'json' => null];
+        }
+        if ($started !== 3) {
+            return [
+                'errors' => ['Quiz : renseignez les 3 questions ou laissez tout le bloc quiz vide.'],
+                'json'   => null,
+            ];
+        }
+        $questions = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $b = $blocks[$i];
+            $questions[] = [
+                'question' => $b['text'],
+                'choices'  => [$b['c0'], $b['c1'], $b['c2']],
+                'correct'  => (int) $b['corr'],
+            ];
+        }
+        $json = json_encode($questions, JSON_UNESCAPED_UNICODE);
+
+        return ['errors' => [], 'json' => $json !== false ? $json : null];
     }
 }

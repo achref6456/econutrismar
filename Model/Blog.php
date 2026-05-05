@@ -91,25 +91,75 @@ class Blog
     }
 
     /** @return list<array<string,mixed>> */
-    public function findAllForAdmin(): array
+    public function findAllForAdmin(?string $search = null, string $sort = 'date_desc'): array
     {
+        $this->ensureQuizTokensForAll();
         if ($this->pdo === null) {
-            $rows = $this->sortArticles($this->loadJsonArticles());
+            $rows = $this->loadJsonArticles();
             foreach ($rows as &$r) {
                 $aid = (int) ($r['id_article'] ?? 0);
                 $r['vues']  = $this->countJsonViews($aid);
                 $r['likes'] = $this->countJsonLikes($aid);
             }
+            unset($r);
+            $rows = $this->filterAdminArticlesBySearch($rows, $search);
+            $this->sortAdminArticles($rows, $sort);
+
             return $rows;
         }
         $sql = 'SELECT b.*, u.prenom, u.nom AS auteur_nom,
                        (SELECT COUNT(*) FROM blog_vues WHERE article_id = b.id_article) AS vues,
                        (SELECT COUNT(*) FROM blog_likes WHERE article_id = b.id_article) AS likes
                 FROM blog b
-                JOIN utilisateur u ON u.id_user = b.user_id
-                ORDER BY b.date_publication DESC, b.id_article DESC';
+                JOIN utilisateur u ON u.id_user = b.user_id';
         $st = $this->pdo->query($sql);
-        return $st->fetchAll();
+        $rows = $st->fetchAll() ?: [];
+        $rows = $this->filterAdminArticlesBySearch($rows, $search);
+        $this->sortAdminArticles($rows, $sort);
+
+        return $rows;
+    }
+
+    /**
+     * Quiz public (article publié uniquement), identifié par jeton opaque.
+     *
+     * @return null|array{ready:bool,questions?:list<array{question:string,choices:list<string>,correct:int}>}
+     */
+    public function findPublishedQuizByToken(string $token): ?array
+    {
+        $token = trim($token);
+        if ($token === '') {
+            return null;
+        }
+        if ($this->pdo === null) {
+            foreach ($this->loadJsonArticles() as $row) {
+                if ((string) ($row['quiz_token'] ?? '') !== $token) {
+                    continue;
+                }
+                if (($row['statut'] ?? '') !== 'publie') {
+                    return null;
+                }
+
+                return $this->quizPayloadFromRow($row);
+            }
+
+            return null;
+        }
+        try {
+            $st = $this->pdo->prepare('SELECT statut, quiz_json FROM blog WHERE quiz_token = :t LIMIT 1');
+            $st->execute(['t' => $token]);
+            $row = $st->fetch();
+        } catch (Throwable) {
+            return null;
+        }
+        if ($row === false) {
+            return null;
+        }
+        if (($row['statut'] ?? '') !== 'publie') {
+            return null;
+        }
+
+        return $this->quizPayloadFromRow($row);
     }
 
     public function create(array $data): int
@@ -120,6 +170,11 @@ class Blog
             foreach ($rows as $r) {
                 $nextId = max($nextId, (int) ($r['id_article'] ?? 0) + 1);
             }
+            $qTok = trim((string) ($data['quiz_token'] ?? ''));
+            if ($qTok === '') {
+                $qTok = bin2hex(random_bytes(16));
+            }
+            $qJson = array_key_exists('quiz_json', $data) ? $data['quiz_json'] : null;
             $rows[] = [
                 'id_article' => $nextId,
                 'titre' => (string) $data['titre'],
@@ -131,12 +186,22 @@ class Blog
                 'prenom' => 'Admin',
                 'auteur_nom' => 'EcoNutri',
                 'auteur_email' => 'admin@local.dev',
+                'quiz_token' => $qTok,
+                'quiz_json'  => $qJson,
             ];
             $this->saveJsonArticles($rows);
             return $nextId;
         }
-        $sql = 'INSERT INTO blog (titre, contenu, date_publication, image, statut, user_id)
-                VALUES (:titre, :contenu, :date_publication, :image, :statut, :user_id)';
+        $qTok = trim((string) ($data['quiz_token'] ?? ''));
+        if ($qTok === '') {
+            $qTok = bin2hex(random_bytes(16));
+        }
+        $qJson = array_key_exists('quiz_json', $data) ? $data['quiz_json'] : null;
+        if ($qJson === '') {
+            $qJson = null;
+        }
+        $sql = 'INSERT INTO blog (titre, contenu, date_publication, image, statut, user_id, quiz_token, quiz_json)
+                VALUES (:titre, :contenu, :date_publication, :image, :statut, :user_id, :quiz_token, :quiz_json)';
         $st = $this->pdo->prepare($sql);
         $st->execute([
             'titre'             => $data['titre'],
@@ -145,6 +210,8 @@ class Blog
             'image'             => $data['image'] ?? '',
             'statut'            => $data['statut'] ?? 'publie',
             'user_id'           => (int) $data['user_id'],
+            'quiz_token'        => $qTok,
+            'quiz_json'         => $qJson,
         ]);
         return (int) $this->pdo->lastInsertId();
     }
@@ -163,6 +230,11 @@ class Blog
                 $row['date_publication'] = (string) $data['date_publication'];
                 $row['image'] = (string) ($data['image'] ?? '');
                 $row['statut'] = (string) ($data['statut'] ?? $row['statut'] ?? 'publie');
+                $qt = trim((string) ($data['quiz_token'] ?? $row['quiz_token'] ?? ''));
+                $row['quiz_token'] = $qt !== '' ? $qt : bin2hex(random_bytes(16));
+                if (array_key_exists('quiz_json', $data)) {
+                    $row['quiz_json'] = $data['quiz_json'];
+                }
                 $updated = true;
                 break;
             }
@@ -172,8 +244,17 @@ class Blog
             }
             return $updated;
         }
+        $qTok = trim((string) ($data['quiz_token'] ?? ''));
+        if ($qTok === '') {
+            $qTok = bin2hex(random_bytes(16));
+        }
+        $qJson = array_key_exists('quiz_json', $data) ? $data['quiz_json'] : null;
+        if ($qJson === '') {
+            $qJson = null;
+        }
         $sql = 'UPDATE blog SET titre = :titre, contenu = :contenu,
-                date_publication = :date_publication, image = :image, statut = :statut
+                date_publication = :date_publication, image = :image, statut = :statut,
+                quiz_token = :quiz_token, quiz_json = :quiz_json
                 WHERE id_article = :id';
         $st = $this->pdo->prepare($sql);
         return $st->execute([
@@ -183,6 +264,8 @@ class Blog
             'date_publication'  => $data['date_publication'],
             'image'             => $data['image'] ?? '',
             'statut'            => $data['statut'] ?? 'publie',
+            'quiz_token'        => $qTok,
+            'quiz_json'         => $qJson,
         ]);
     }
 
@@ -512,5 +595,167 @@ class Blog
             return (int) ($b['id_article'] ?? 0) <=> (int) ($a['id_article'] ?? 0);
         });
         return $rows;
+    }
+
+    public function ensureQuizTokensForAll(): void
+    {
+        if ($this->pdo === null) {
+            $rows = $this->loadJsonArticles();
+            $changed = false;
+            foreach ($rows as &$r) {
+                if (trim((string) ($r['quiz_token'] ?? '')) === '') {
+                    $r['quiz_token'] = bin2hex(random_bytes(16));
+                    $changed = true;
+                }
+            }
+            unset($r);
+            if ($changed) {
+                $this->saveJsonArticles($rows);
+            }
+
+            return;
+        }
+        try {
+            $st = $this->pdo->query("SELECT id_article FROM blog WHERE quiz_token IS NULL OR TRIM(quiz_token) = ''");
+            if ($st === false) {
+                return;
+            }
+            $ids = $st->fetchAll(PDO::FETCH_COLUMN);
+            foreach ($ids as $id) {
+                $t = bin2hex(random_bytes(16));
+                $u = $this->pdo->prepare('UPDATE blog SET quiz_token = :t WHERE id_article = :id');
+                $u->execute(['t' => $t, 'id' => (int) $id]);
+            }
+        } catch (Throwable) {
+            // Colonnes quiz absentes : exécuter migration_blog_quiz.sql
+        }
+    }
+
+    /** Garantit un jeton quiz pour un article (affichage QR sur le site). */
+    public function ensureQuizTokenForArticle(int $id): void
+    {
+        if ($id < 1) {
+            return;
+        }
+        if ($this->pdo === null) {
+            $rows = $this->loadJsonArticles();
+            $changed = false;
+            foreach ($rows as &$r) {
+                if ((int) ($r['id_article'] ?? 0) !== $id) {
+                    continue;
+                }
+                if (trim((string) ($r['quiz_token'] ?? '')) === '') {
+                    $r['quiz_token'] = bin2hex(random_bytes(16));
+                    $changed = true;
+                }
+                break;
+            }
+            unset($r);
+            if ($changed) {
+                $this->saveJsonArticles($rows);
+            }
+
+            return;
+        }
+        try {
+            $t = bin2hex(random_bytes(16));
+            $st = $this->pdo->prepare(
+                'UPDATE blog SET quiz_token = :t WHERE id_article = :id AND (quiz_token IS NULL OR TRIM(quiz_token) = \'\')'
+            );
+            $st->execute(['t' => $t, 'id' => $id]);
+        } catch (Throwable) {
+        }
+    }
+
+    /** @param list<array<string,mixed>> $rows
+     * @return list<array<string,mixed>>
+     */
+    private function filterAdminArticlesBySearch(array $rows, ?string $search): array
+    {
+        if ($search === null || trim($search) === '') {
+            return $rows;
+        }
+        $q = mb_strtolower(trim($search));
+
+        return array_values(array_filter($rows, static function (array $a) use ($q): bool {
+            $t = mb_strtolower((string) ($a['titre'] ?? ''));
+
+            return str_contains($t, $q);
+        }));
+    }
+
+    /** @param list<array<string,mixed>> $rows */
+    private function sortAdminArticles(array &$rows, string $sort): void
+    {
+        $sort = preg_replace('/[^a-z_]/', '', $sort) ?: 'date_desc';
+        usort($rows, function (array $a, array $b) use ($sort): int {
+            return match ($sort) {
+                'date_asc' => $this->comparePubDate($a, $b, false),
+                'titre_az', 'titre_asc' => strcasecmp((string) ($a['titre'] ?? ''), (string) ($b['titre'] ?? '')),
+                'titre_za', 'titre_desc' => strcasecmp((string) ($b['titre'] ?? ''), (string) ($a['titre'] ?? '')),
+                'vues_desc' => ((int) ($b['vues'] ?? 0)) <=> ((int) ($a['vues'] ?? 0)),
+                'vues_asc' => ((int) ($a['vues'] ?? 0)) <=> ((int) ($b['vues'] ?? 0)),
+                'likes_desc' => ((int) ($b['likes'] ?? 0)) <=> ((int) ($a['likes'] ?? 0)),
+                'likes_asc' => ((int) ($a['likes'] ?? 0)) <=> ((int) ($b['likes'] ?? 0)),
+                default => $this->comparePubDate($a, $b, true),
+            };
+        });
+    }
+
+    /** @param array<string,mixed> $a */
+    private function comparePubDate(array $a, array $b, bool $desc): int
+    {
+        $da = $this->normalizeDatetime((string) ($a['date_publication'] ?? ''));
+        $db = $this->normalizeDatetime((string) ($b['date_publication'] ?? ''));
+        if ($desc) {
+            $cmp = strcmp($db, $da);
+            if ($cmp !== 0) {
+                return $cmp;
+            }
+
+            return (int) ($b['id_article'] ?? 0) <=> (int) ($a['id_article'] ?? 0);
+        }
+        $cmp = strcmp($da, $db);
+        if ($cmp !== 0) {
+            return $cmp;
+        }
+
+        return (int) ($a['id_article'] ?? 0) <=> (int) ($b['id_article'] ?? 0);
+    }
+
+    /**
+     * @param array<string,mixed> $row
+     *
+     * @return array{ready:bool,questions?:list<array{question:string,choices:list<string>,correct:int}>}
+     */
+    private function quizPayloadFromRow(array $row): array
+    {
+        $raw = (string) ($row['quiz_json'] ?? '');
+        $parsed = json_decode($raw, true);
+        if (!is_array($parsed) || count($parsed) !== 3) {
+            return ['ready' => false];
+        }
+        $norm = [];
+        foreach ($parsed as $item) {
+            if (!is_array($item)) {
+                return ['ready' => false];
+            }
+            $q = trim((string) ($item['question'] ?? ''));
+            $choices = $item['choices'] ?? [];
+            if (!is_array($choices)) {
+                return ['ready' => false];
+            }
+            $choices = array_values(array_map(static fn($c): string => trim((string) $c), $choices));
+            if ($q === '' || count($choices) < 2) {
+                return ['ready' => false];
+            }
+            $ci = (int) ($item['correct'] ?? 0);
+            if ($ci < 0 || $ci >= count($choices)) {
+                return ['ready' => false];
+            }
+            $norm[] = ['question' => $q, 'choices' => $choices, 'correct' => $ci];
+        }
+
+        return ['ready' => true, 'questions' => $norm];
     }
 }

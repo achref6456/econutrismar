@@ -51,6 +51,31 @@ class Commentaire
         return (int) $this->pdo->lastInsertId();
     }
 
+    /* ─── Modifier le contenu d'un commentaire (remet en_attente) ─── */
+
+    public function update(int $id, string $contenu): bool
+    {
+        if ($this->pdo === null) {
+            $rows = $this->loadJson();
+            $found = false;
+            foreach ($rows as &$r) {
+                if ((int) ($r['id_commentaire'] ?? 0) === $id) {
+                    $r['contenu'] = $contenu;
+                    $r['statut']  = 'en_attente';
+                    $found = true;
+                    break;
+                }
+            }
+            unset($r);
+            if ($found) {
+                $this->saveJson($rows);
+            }
+            return $found;
+        }
+        $st = $this->pdo->prepare('UPDATE commentaire SET contenu = :contenu, statut = :statut WHERE id_commentaire = :id');
+        return $st->execute(['contenu' => $contenu, 'statut' => 'en_attente', 'id' => $id]);
+    }
+
     /* ─── Commentaires approuvés d'un article (frontend) ─── */
 
     /** @return list<array<string,mixed>> */

@@ -1,12 +1,12 @@
 [
     {
-        "article_id": 1,
+        "article_id": 6,
         "ip": "::1",
-        "timestamp": 1776992783
+        "timestamp": 1777935382
     },
     {
-        "article_id": 2,
+        "article_id": 4,
         "ip": "::1",
-        "timestamp": 1777318971
+        "timestamp": 1777935414
     }
 ]

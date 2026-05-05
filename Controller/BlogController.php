@@ -15,6 +15,7 @@ class BlogController
     {
         // Auto-publier les articles programmés dont la date est dépassée
         $this->model->publishScheduled();
+        $this->model->ensureQuizTokensForAll();
         $articles = $this->model->findAllPublished();
         $pageTitle = 'Blog — EcoNutri';
         $uploadBase = '../../';
@@ -35,6 +36,7 @@ class BlogController
             require dirname(__DIR__) . '/View/frontoffice/blog_error.php';
             return;
         }
+        $this->model->ensureQuizTokenForArticle($id);
         $article = $this->model->findById($id);
         // Bloquer l'accès aux articles non publiés
         if ($article === null || ($article['statut'] ?? 'publie') !== 'publie') {

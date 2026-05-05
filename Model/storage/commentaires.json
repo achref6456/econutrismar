@@ -1,34 +1,26 @@
 [
     {
-        "id_commentaire": 3,
-        "article_id": 1,
-        "pseudo": "med",
-        "contenu": "dbakd",
-        "date_commentaire": "2026-04-24 01:50:32",
+        "id_commentaire": 8,
+        "article_id": 6,
+        "pseudo": "moh",
+        "contenu": "bien",
+        "date_commentaire": "2026-05-04 23:56:43",
+        "statut": "approuve"
+    },
+    {
+        "id_commentaire": 9,
+        "article_id": 4,
+        "pseudo": "oueslati",
+        "contenu": "tres tres bien",
+        "date_commentaire": "2026-05-04 23:57:03",
         "statut": "refuse"
     },
     {
-        "id_commentaire": 4,
-        "article_id": 1,
-        "pseudo": "amara",
-        "contenu": "good",
-        "date_commentaire": "2026-04-24 02:07:00",
-        "statut": "approuve"
-    },
-    {
-        "id_commentaire": 5,
-        "article_id": 3,
-        "pseudo": "MED",
-        "contenu": "bien",
-        "date_commentaire": "2026-04-27 20:42:41",
-        "statut": "approuve"
-    },
-    {
-        "id_commentaire": 6,
-        "article_id": 2,
+        "id_commentaire": 10,
+        "article_id": 4,
         "pseudo": "ali",
-        "contenu": "j'ai pas aimer",
-        "date_commentaire": "2026-04-27 20:43:02",
+        "contenu": "non",
+        "date_commentaire": "2026-05-04 23:57:16",
         "statut": "refuse"
     }
 ]

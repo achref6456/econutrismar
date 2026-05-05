@@ -1,5 +1,6 @@
 <?php
 $a = is_array($article ?? null) ? $article : [];
+$quizForm = is_array($quizForm ?? null) ? $quizForm : [];
 $isEdit = isset($a['id_article']);
 $idVal = $isEdit ? (int) $a['id_article'] : 0;
 $titre = htmlspecialchars((string) ($a['titre'] ?? ''));
@@ -37,7 +38,7 @@ $action = $isEdit ? 'edit.php' : 'create.php';
     aside nav a.active { background:rgba(74,158,48,.25); color:#fff; }
     aside .logout { margin-top:auto; font-size:.85rem; }
     aside .logout a { color:var(--orange); text-decoration:none; }
-    main { flex:1; padding:1.75rem 2rem; max-width:720px; }
+    main { flex:1; padding:1.75rem 2rem; max-width:820px; }
     h1 { font-family:"Playfair Display",serif; color:var(--green-dark); font-size:1.35rem; margin-bottom:1.25rem; }
     .errs { background:#fdecea; color:#b71c1c; padding:.75rem 1rem; border-radius:12px; margin-bottom:1rem; font-size:.88rem; }
     .errs li { margin-left:1.1rem; margin-bottom:.25rem; }
@@ -60,6 +61,15 @@ $action = $isEdit ? 'edit.php' : 'create.php';
     .statut-info.brouillon { background:#fff3e0; color:#e65100; border:1px solid #ffcc80; }
     .statut-info.programme { background:#e3f2fd; color:#1565c0; border:1px solid #90caf9; }
     .statut-info.publie { background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; }
+
+    .quiz-block { margin-top:1.25rem; padding:1.1rem 1rem; background:#fff; border:1.5px solid var(--border); border-radius:14px; }
+    .quiz-block h2 { font-size:1rem; color:var(--green-dark); margin-bottom:.35rem; font-family:inherit; }
+    .quiz-block > .hint { margin-bottom:1rem; }
+    .quiz-q { margin-bottom:1.1rem; padding-bottom:1rem; border-bottom:1px dashed var(--border); }
+    .quiz-q:last-of-type { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+    .quiz-q h3 { font-size:.85rem; color:var(--green-dark); margin-bottom:.65rem; }
+    .correct-row { display:flex; flex-wrap:wrap; gap:.75rem; align-items:center; margin-top:.5rem; font-size:.82rem; }
+    .correct-row label { font-weight:500; color:#444; }
 
     @media (max-width:800px) { body { flex-direction:column; } aside { width:100%; } }
   </style>
@@ -131,6 +141,47 @@ $action = $isEdit ? 'edit.php' : 'create.php';
         <p class="hint">Image actuelle :</p>
         <img class="preview" src="<?= $assetBase . htmlspecialchars((string)$a['image']) ?>" alt="" />
       <?php endif; ?>
+      <div class="quiz-block">
+        <h2>Quiz (QR code)</h2>
+        <p class="hint">Trois questions à choix multiples liées à l’article. Laissez tout vide si vous ne voulez pas de quiz : le QR code mènera alors vers une page « à venir ». Sinon, remplissez les 3 questions en entier.</p>
+        <?php for ($qi = 1; $qi <= 3; $qi++): ?>
+          <?php
+            $qf = $quizForm[$qi] ?? ['text' => '', 'c0' => '', 'c1' => '', 'c2' => '', 'correct' => 0];
+            $qt = htmlspecialchars((string) ($qf['text'] ?? ''));
+            $c0 = htmlspecialchars((string) ($qf['c0'] ?? ''));
+            $c1 = htmlspecialchars((string) ($qf['c1'] ?? ''));
+            $c2 = htmlspecialchars((string) ($qf['c2'] ?? ''));
+            $cor = (int) ($qf['correct'] ?? 0);
+          ?>
+          <div class="quiz-q">
+            <h3>Question <?= $qi ?></h3>
+            <div class="fg">
+              <label for="quiz_q<?= $qi ?>_text">Énoncé</label>
+              <input class="fc" type="text" name="quiz_q<?= $qi ?>_text" id="quiz_q<?= $qi ?>_text" value="<?= $qt ?>" maxlength="500" />
+            </div>
+            <div class="row">
+              <div class="fg">
+                <label for="quiz_q<?= $qi ?>_c0">Réponse A</label>
+                <input class="fc" type="text" name="quiz_q<?= $qi ?>_c0" id="quiz_q<?= $qi ?>_c0" value="<?= $c0 ?>" maxlength="255" />
+              </div>
+              <div class="fg">
+                <label for="quiz_q<?= $qi ?>_c1">Réponse B</label>
+                <input class="fc" type="text" name="quiz_q<?= $qi ?>_c1" id="quiz_q<?= $qi ?>_c1" value="<?= $c1 ?>" maxlength="255" />
+              </div>
+              <div class="fg">
+                <label for="quiz_q<?= $qi ?>_c2">Réponse C</label>
+                <input class="fc" type="text" name="quiz_q<?= $qi ?>_c2" id="quiz_q<?= $qi ?>_c2" value="<?= $c2 ?>" maxlength="255" />
+              </div>
+            </div>
+            <div class="correct-row">
+              <span>Bonne réponse :</span>
+              <label><input type="radio" name="quiz_q<?= $qi ?>_correct" value="0" <?= $cor === 0 ? 'checked' : '' ?> /> A</label>
+              <label><input type="radio" name="quiz_q<?= $qi ?>_correct" value="1" <?= $cor === 1 ? 'checked' : '' ?> /> B</label>
+              <label><input type="radio" name="quiz_q<?= $qi ?>_correct" value="2" <?= $cor === 2 ? 'checked' : '' ?> /> C</label>
+            </div>
+          </div>
+        <?php endfor; ?>
+      </div>
       <div class="fg">
         <label for="contenu">Contenu</label>
         <textarea class="fc" name="contenu" id="contenu"><?= $contenu ?></textarea>
