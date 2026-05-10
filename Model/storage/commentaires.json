@@ -1,0 +1,26 @@
+[
+    {
+        "id_commentaire": 8,
+        "article_id": 6,
+        "pseudo": "moh",
+        "contenu": "tres bien",
+        "date_commentaire": "2026-05-04 23:56:43",
+        "statut": "approuve"
+    },
+    {
+        "id_commentaire": 9,
+        "article_id": 4,
+        "pseudo": "oueslati",
+        "contenu": "tres tres bien",
+        "date_commentaire": "2026-05-04 23:57:03",
+        "statut": "refuse"
+    },
+    {
+        "id_commentaire": 10,
+        "article_id": 4,
+        "pseudo": "ali",
+        "contenu": "non",
+        "date_commentaire": "2026-05-04 23:57:16",
+        "statut": "refuse"
+    }
+]

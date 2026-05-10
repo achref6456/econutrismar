@@ -1,0 +1,44 @@
+[
+    {
+        "id_article": 4,
+        "titre": "La biodiversité : un équilibre fragile à préserver",
+        "contenu": "La biodiversité désigne l’ensemble des êtres vivants sur Terre : animaux, plantes et micro-organismes.\r\n\r\nCet équilibre naturel est essentiel, car chaque espèce joue un rôle important dans son écosystème. Par exemple, les abeilles participent à la pollinisation, indispensable à la production alimentaire.\r\n\r\nCependant, la pollution, la déforestation et le changement climatique menacent fortement cette biodiversité.\r\n\r\nProtéger les espèces et leurs habitats est crucial pour maintenir l’équilibre naturel et assurer la survie des générations futures.",
+        "date_publication": "2026-05-04T23:48",
+        "image": "uploads\/blog\/blog_11f0f5cd1563ac67.jpg",
+        "statut": "publie",
+        "user_id": 1,
+        "prenom": "Admin",
+        "auteur_nom": "EcoNutri",
+        "auteur_email": "admin@local.dev",
+        "quiz_token": "d71f369af49f40aa1efa946f17b5d962",
+        "quiz_json": "[{\"question\":\"Qu’est-ce que la biodiversité ?\",\"choices\":[\"Seulement les animaux\",\"Tous les êtres vivants\",\"Les plantes uniquement\"],\"correct\":1},{\"question\":\"Quel animal est essentiel pour la pollinisation\",\"choices\":[\"Le lion\",\"L’abeille\",\"Le poisson\"],\"correct\":1},{\"question\":\"Quelle est une menace pour la biodiversité ?\",\"choices\":[\"La protection des forêts\",\"Le recyclage\",\"La déforestation\"],\"correct\":2}]"
+    },
+    {
+        "id_article": 5,
+        "titre": "Les forêts : un trésor naturel à protéger",
+        "contenu": "Les forêts couvrent une grande partie de notre planète et jouent un rôle essentiel dans la régulation du climat.\r\n\r\nElles absorbent le dioxyde de carbone et produisent de l’oxygène, ce qui aide à lutter contre le réchauffement climatique.\r\n\r\nLes forêts abritent également une grande diversité d’espèces animales et végétales.\r\n\r\nMalheureusement, la déforestation due aux activités humaines menace cet équilibre naturel.\r\n\r\nIl est donc important de protéger les forêts en limitant la coupe excessive et en encourageant la reforestation.",
+        "date_publication": "2026-05-04T23:47",
+        "image": "uploads\/blog\/blog_a76fbbe15f496788.jpg",
+        "statut": "publie",
+        "user_id": 1,
+        "prenom": "Admin",
+        "auteur_nom": "EcoNutri",
+        "auteur_email": "admin@local.dev",
+        "quiz_token": "c7ce01169399e49ebf1edc3aa55bb3ed",
+        "quiz_json": "[{\"question\":\"Quel est le rôle principal des forêts ?\",\"choices\":[\"Produire du plastique\",\"Absorber le CO2\",\"Créer des bâtiments\"],\"correct\":1},{\"question\":\"Que produisent les forêts ?\",\"choices\":[\"De l’oxygène\",\"Du métal\",\"Du pétrole\"],\"correct\":0},{\"question\":\"Quelle activité menace les forêts ?\",\"choices\":[\"La reforestation\",\"La déforestation\",\"Le recyclage\"],\"correct\":1}]"
+    },
+    {
+        "id_article": 6,
+        "titre": "Les bienfaits d’une alimentation saine",
+        "contenu": "Adopter une alimentation saine est essentiel pour maintenir une bonne santé physique et mentale.\r\n\r\nLes aliments naturels comme les fruits, les légumes et les céréales complètes apportent les nutriments nécessaires au bon fonctionnement du corps.\r\n\r\nUne alimentation équilibrée permet de renforcer le système immunitaire, d’améliorer l’énergie au quotidien et de prévenir plusieurs maladies.\r\n\r\nIl est conseillé de limiter les produits transformés et de privilégier des repas faits maison.\r\n\r\nPrendre soin de son alimentation, c’est investir dans sa santé sur le long terme.",
+        "date_publication": "2026-05-05T09:47",
+        "image": "uploads\/blog\/blog_86b4f10827ec1e0c.jpg",
+        "statut": "publie",
+        "user_id": 1,
+        "prenom": "Admin",
+        "auteur_nom": "EcoNutri",
+        "auteur_email": "admin@local.dev",
+        "quiz_token": "284c571f47d4065d8d04d3b349b707a7",
+        "quiz_json": "[{\"question\":\"Pourquoi une alimentation saine est-elle importante ?\",\"choices\":[\"Pour dépenser plus d’argent\",\"Pour améliorer la santé\",\"Pour manger plus vite\"],\"correct\":1},{\"question\":\"Quels aliments sont recommandés ?\",\"choices\":[\"Les produits transformés\",\"Les fast-foods\",\"Les fruits et légumes\"],\"correct\":2},{\"question\":\"Quel est un avantage d’une alimentation équilibrée ?\",\"choices\":[\"Fatigue constante\",\"Renforcement du système immunitaire\",\"Moins d’énergie\"],\"correct\":1}]"
+    }
+]

@@ -1,0 +1,22 @@
+[
+    {
+        "article_id": 6,
+        "ip": "::1",
+        "timestamp": 1777935380
+    },
+    {
+        "article_id": 4,
+        "ip": "::1",
+        "timestamp": 1777935412
+    },
+    {
+        "article_id": 5,
+        "ip": "::1",
+        "timestamp": 1777935655
+    },
+    {
+        "article_id": 6,
+        "ip": "::1",
+        "timestamp": 1778270002
+    }
+]
