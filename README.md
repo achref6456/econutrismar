@@ -6,8 +6,15 @@
 
 ## 📋 Description
 
-**EcoNutri** est une plateforme web dédiée à une alimentation saine et durable.
-Ce module gère l'ensemble des utilisateurs de la plateforme avec un système complet d'authentification, de gestion de profil et d'administration.
+**EcoNutri** is a comprehensive web platform dedicated to healthy and sustainable nutrition, developed as a team academic project at **ESPRIT** (École Supérieure Privée d'Ingénierie et de Technologies). The platform brings together three integrated modules built by a team of three developers, each responsible for a distinct feature set.
+
+The first module, developed by **Achref Challouf**, handles complete **user management and authentication**: registration, login, profile management, admin dashboard with full CRUD operations, face recognition login using face-api.js, email notifications via PHPMailer, and advanced features such as dark/light mode, QR code generation, and interactive maps.
+
+The second module, developed by **Mohamed Ouslati**, covers the **blog system**: publishing and managing articles with rich content, a comment moderation system, an integrated quiz with QR code access for each article, scheduled publication, view and like tracking, and a full backoffice for blog administration.
+
+The third module covers **recipe management**: creating and managing recipes with ingredients and nutritional values, categorizing food items, handling user orders, and providing a dedicated backoffice with statistics and order management.
+
+All three modules are fully integrated under a single MVC PHP application with a unified routing system, shared authentication, and a consistent user interface. The integration was managed through Git with feature branches merged into the main branch after validation.
 
 ---
 
