@@ -1,167 +1,167 @@
-# 🌿 EcoNutri — Nutritional Management Platform
+# 🌿 EcoNutri — Plateforme de Gestion Nutritionnelle
 
-> PHP MVC Web Project — Team Integration
+> Projet Web MVC PHP — Intégration Équipe
 
 ---
 
 ## 📋 Description
 
-**EcoNutri** is a comprehensive web platform dedicated to healthy and sustainable nutrition, developed as a collaborative academic project at **ESPRIT** (École Supérieure Privée d'Ingénierie et de Technologies) by a team of three developers. The platform aims to help users adopt healthier eating habits by providing personalized nutritional guidance, recipe management, and educational blog content — all within a single, unified web application.
+**EcoNutri** est une plateforme web complète dédiée à une alimentation saine et durable, développée dans le cadre d'un projet académique collaboratif à **ESPRIT** (École Supérieure Privée d'Ingénierie et de Technologies) par une équipe de trois développeurs. La plateforme vise à aider les utilisateurs à adopter de meilleures habitudes alimentaires en proposant des conseils nutritionnels personnalisés, une gestion des recettes et un blog éducatif — le tout au sein d'une seule application web unifiée.
 
-The platform is built using a **PHP 8 MVC architecture** with MySQL databases, PDO for secure data access, and a clean separation between controllers, models, and views. The entire project was developed collaboratively using Git, with each developer working on a dedicated feature branch before merging into the main branch.
+La plateforme est construite avec une **architecture MVC PHP 8**, des bases de données MySQL, PDO pour un accès sécurisé aux données, et une séparation claire entre les contrôleurs, les modèles et les vues. L'ensemble du projet a été développé en collaboration via Git, chaque développeur travaillant sur une branche dédiée avant de fusionner dans la branche principale.
 
-**Module 1 — User Management & Authentication (Achref Challouf):**
-This module forms the backbone of the EcoNutri platform. It provides a complete authentication system including user registration with strong password validation, login with Remember Me cookie support, and a forgot password feature. An innovative face recognition login was implemented using face-api.js, allowing administrators to authenticate using their webcam. The admin dashboard offers full CRUD operations on user accounts, including search, sort, ban/unban, and detailed statistics. Each user has a personalized profile with avatar upload. New users receive an automated welcome email sent via PHPMailer with SMTP Gmail. Additional features include an interactive OpenStreetMap, a QR code business card generator, a dark/light mode toggle, and a registration date calendar.
+**Module 1 — Gestion des Utilisateurs & Authentification (Achref Challouf) :**
+Ce module constitue le socle de la plateforme EcoNutri. Il fournit un système d'authentification complet incluant l'inscription avec validation de mot de passe fort, la connexion avec support du cookie "Se souvenir de moi", et une fonctionnalité de mot de passe oublié. Une connexion innovante par reconnaissance faciale a été implémentée avec face-api.js, permettant aux administrateurs de s'authentifier via leur webcam. Le tableau de bord admin offre des opérations CRUD complètes sur les comptes utilisateurs, incluant la recherche, le tri, le bannissement/débannissement et des statistiques détaillées. Chaque utilisateur dispose d'un profil personnalisé avec upload d'avatar. Les nouveaux inscrits reçoivent un email de bienvenue automatique via PHPMailer avec SMTP Gmail. Les fonctionnalités supplémentaires incluent une carte OpenStreetMap interactive, un générateur de QR Code carte de visite, un mode sombre/clair et un calendrier de date d'inscription.
 
-**Module 2 — Blog & Quiz System (Mohamed Ouslati):**
-This module provides a complete blog management system for publishing nutritional articles. Administrators can create, edit, delete, and schedule articles for future publication. Each article supports image uploads, rich text content, view and like tracking per IP address, and an integrated 3-question quiz accessible via a unique QR code. A comment moderation system allows administrators to approve, reject, or delete user comments. The blog backoffice includes detailed statistics showing top-viewed and top-liked articles with interactive charts.
+**Module 2 — Blog & Système de Quiz (Mohamed Ouslati) :**
+Ce module fournit un système complet de gestion de blog pour la publication d'articles nutritionnels. Les administrateurs peuvent créer, modifier, supprimer et programmer des articles pour une publication future. Chaque article supporte l'upload d'images, du contenu riche, le suivi des vues et des likes par adresse IP, et un quiz intégré de 3 questions accessible via un QR code unique. Un système de modération des commentaires permet aux administrateurs d'approuver, refuser ou supprimer les commentaires des utilisateurs. Le back-office blog inclut des statistiques détaillées montrant les articles les plus vus et les plus aimés avec des graphiques interactifs.
 
-**Module 3 — Recipe & Order Management:**
-This module allows administrators to manage a catalog of recipes and food ingredients with nutritional values (calories, proteins, carbohydrates, lipids). Recipes can be categorized, linked to specific ingredients with quantities, and displayed to users on the front office. Users can place orders for recipes, and administrators can accept or reject orders with personalized messages. The backoffice includes statistics and a full order management interface.
+**Module 3 — Gestion des Recettes & Commandes (Eya) :**
+Ce module permet aux administrateurs de gérer un catalogue de recettes et d'ingrédients alimentaires avec leurs valeurs nutritionnelles (calories, protéines, glucides, lipides). Les recettes peuvent être catégorisées, liées à des ingrédients spécifiques avec des quantités, et affichées aux utilisateurs sur le front office. Les utilisateurs peuvent passer des commandes de recettes, et les administrateurs peuvent accepter ou refuser les commandes avec des messages personnalisés. Le back-office inclut des statistiques et une interface complète de gestion des commandes.
 
-All three modules share a unified front office interface, a common navigation system, and are accessible through a single entry point at `index.php`. The integration ensures that users experience a seamless, cohesive platform regardless of which module they interact with.
-
----
-
-## 🚀 Features
-
-### Basic Features
-| Feature | Description |
-|---|---|
-| 🔍 **Search** | Search users by name, first name or email |
-| 🔃 **Sort** | Sort by name, first name, email, role, date |
-| 📊 **Statistics** | Total users, admins, registered this week |
-
-### Advanced Features
-| Feature | Description |
-|---|---|
-| 🔒 **Strong Password** | Strength bar + visual rules |
-| 📧 **Email** | Welcome email via PHPMailer SMTP Gmail |
-| 🍪 **Cookies** | Remember Me — persistent login |
-| 📅 **Calendar** | Registration date + today |
-| 📍 **Maps** | Integrated OpenStreetMap |
-| 📱 **QR Code** | Scannable business card |
-| 🌙 **Dark/Light Mode** | Saved theme toggle |
-| 🔐 **Face Recognition** | Admin login by face (face-api.js) |
+Les trois modules partagent une interface front office unifiée, un système de navigation commun, et sont accessibles via un point d'entrée unique `index.php`. L'intégration garantit aux utilisateurs une expérience fluide et cohérente quel que soit le module avec lequel ils interagissent.
 
 ---
 
-## 🏗️ MVC Architecture
+## 🚀 Fonctionnalités
+
+### Métiers Simples
+| Fonctionnalité | Description |
+|---|---|
+| 🔍 **Recherche** | Recherche par nom, prénom ou email |
+| 🔃 **Tri** | Tri par nom, prénom, email, rôle, date |
+| 📊 **Statistiques** | Total users, admins, inscrits cette semaine |
+
+### Métiers Avancés
+| Fonctionnalité | Description |
+|---|---|
+| 🔒 **Mot de passe fort** | Barre de force + règles visuelles |
+| 📧 **Email** | Email de bienvenue via PHPMailer SMTP Gmail |
+| 🍪 **Cookies** | Remember Me — connexion persistante |
+| 📅 **Calendrier** | Date d'inscription + aujourd'hui |
+| 📍 **Maps** | Carte OpenStreetMap intégrée |
+| 📱 **QR Code** | Carte de visite scannable |
+| 🌙 **Dark/Light Mode** | Thème sombre/clair mémorisé |
+| 🔐 **Reconnaissance faciale** | Connexion admin par visage (face-api.js) |
+
+---
+
+## 🏗️ Architecture MVC
 
 ```
 econutrismar/
 ├── Controller/
-│   ├── AuthController.php          # Authentication
-│   ├── UserController.php          # User CRUD
-│   ├── ProfilController.php        # Profile management
+│   ├── AuthController.php          # Authentification
+│   ├── UserController.php          # CRUD Utilisateurs
+│   ├── ProfilController.php        # Gestion profil
 │   ├── BlogController.php          # Blog front office
 │   ├── AdminBlogController.php     # Blog back office
-│   └── QuizController.php          # Quiz system
+│   └── QuizController.php          # Système de quiz
 ├── Model/
-│   ├── User.php                    # User model
-│   ├── Blog.php                    # Blog model
-│   └── Commentaire.php             # Comment model
+│   ├── User.php                    # Modèle utilisateur
+│   ├── Blog.php                    # Modèle blog
+│   └── Commentaire.php             # Modèle commentaire
 ├── View/
-│   ├── auth/                       # Login, Register, Forgot password
-│   ├── frontoffice/                # Home, Profile, Blog
-│   └── backoffice/                 # Admin dashboard, CRUD
-├── recette/                        # Recipe module (independent)
+│   ├── auth/                       # Login, Register, Mot de passe oublié
+│   ├── frontoffice/                # Accueil, Profil, Blog
+│   └── backoffice/                 # Dashboard admin, CRUD
+├── recette/                        # Module recette (indépendant)
 ├── config/
-│   ├── database.php                # PDO connection (Singleton)
-│   └── mailer.php                  # PHPMailer configuration
-├── uploads/avatars/                # Profile pictures
-└── index.php                       # Main router
+│   ├── database.php                # Connexion PDO (Singleton)
+│   └── mailer.php                  # Configuration PHPMailer
+├── uploads/avatars/                # Photos de profil
+└── index.php                       # Routeur principal
 ```
 
 ---
 
-## 🛠️ Technologies Used
+## 🛠️ Technologies Utilisées
 
-- **PHP 8** — MVC Backend
-- **MySQL** — Database
-- **PDO** — Secure data access
-- **PHPMailer 6.9.1** — SMTP email sending
-- **face-api.js** — Face recognition
-- **OpenStreetMap** — Interactive map
-- **qrserver.com API** — QR Code generation
+- **PHP 8** — Backend MVC
+- **MySQL** — Base de données
+- **PDO** — Accès sécurisé aux données
+- **PHPMailer 6.9.1** — Envoi d'emails SMTP
+- **face-api.js** — Reconnaissance faciale
+- **OpenStreetMap** — Cartographie interactive
+- **qrserver.com API** — Génération QR Code
 - **HTML5 / CSS3 / JavaScript** — Frontend
 
 ---
 
-## 🔐 Security
+## 🔐 Sécurité
 
-- Passwords hashed with **ARGON2ID**
-- **PDO** prepared statements (SQL injection protection)
-- **htmlspecialchars()** escaping (XSS protection)
-- Role-based access control (admin/user)
-- Server-side validation on all forms
+- Mots de passe hashés avec **ARGON2ID**
+- Requêtes préparées **PDO** (protection injection SQL)
+- Échappement **htmlspecialchars()** (protection XSS)
+- Vérification des rôles (admin/user)
+- Validation côté serveur sur tous les formulaires
 
 ---
 
 ## ⚙️ Installation
 
-### Requirements
+### Prérequis
 - XAMPP (Apache + MySQL + PHP 8)
-- Modern browser
+- Navigateur moderne
 
-### Steps
+### Étapes
 
-**1. Clone the repository:**
+**1. Cloner le dépôt :**
 ```bash
 git clone https://github.com/achref6456/econutrismar.git
 ```
 
-**2. Copy to htdocs:**
+**2. Copier dans htdocs :**
 ```
 C:\xampp\htdocs\econutrismar\
 ```
 
-**3. Import databases in phpMyAdmin:**
-- Open `http://localhost/phpmyadmin`
-- Import `database.sql` → creates `econutrismar`
-- Import `blog.sql` → creates `econutri_db`
-- Import `recette.sql` → creates `econutri`
+**3. Importer les bases de données dans phpMyAdmin :**
+- Ouvrir `http://localhost/phpmyadmin`
+- Importer `database.sql` → crée `econutrismar`
+- Importer `blog.sql` → crée `econutri_db`
+- Importer `recette.sql` → crée `econutri`
 
-**4. Start XAMPP** (Apache + MySQL)
+**4. Lancer XAMPP** (Apache + MySQL)
 
-**5. Access the project:**
+**5. Accéder au projet :**
 ```
 http://localhost/econutrismar/
 ```
 
 ---
 
-## 👤 Test Accounts
+## 👤 Comptes de Test
 
-| Role | Email | Password |
-|------|-------|----------|
+| Rôle | Email | Mot de passe |
+|------|-------|--------------|
 | Admin | admin@econutri.com | password |
 
 ---
 
-## 📱 Links
+## 📱 Liens
 
 | Page | URL |
 |------|-----|
 | Front Office | `http://localhost/econutrismar/` |
 | Back Office | `http://localhost/econutrismar/index.php?page=backoffice` |
-| Login | `http://localhost/econutrismar/index.php?page=login` |
-| Face Login | `http://localhost/econutrismar/index.php?page=face-login` |
+| Connexion | `http://localhost/econutrismar/index.php?page=login` |
+| Reconnaissance faciale | `http://localhost/econutrismar/index.php?page=face-login` |
 | Blog | `http://localhost/econutrismar/index.php?page=blog` |
 | Blog Admin | `http://localhost/econutrismar/index.php?page=admin_blog` |
-| Recipes | `http://localhost/econutrismar/recette/views/index.php` |
-| Recipes Admin | `http://localhost/econutrismar/recette/views/backoffice/index.php` |
+| Recettes | `http://localhost/econutrismar/recette/views/index.php` |
+| Recettes Admin | `http://localhost/econutrismar/recette/views/backoffice/index.php` |
 
 ---
 
-## 👨‍💻 Team
+## 👨‍💻 Équipe
 
-| Module | Developer |
-|--------|-----------|
-| User Management + Authentication | **Achref Challouf** |
-| Blog + Quiz + Comments | **Mohamed Ouslati** |
-| Recipes + Ingredients + Orders | **Eya** |
+| Module | Développeur |
+|--------|-------------|
+| Gestion Utilisateurs + Authentification | **Achref Challouf** |
+| Blog + Quiz + Commentaires | **Mohamed Ouslati** |
+| Recettes + Aliments + Commandes | **Eya** |
 
 ---
 
-© 2026 EcoNutri — Healthy & Sustainable Nutrition 🌿
+© 2026 EcoNutri — Alimentation saine & durable 🌿
