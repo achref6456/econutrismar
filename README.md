@@ -6,15 +6,20 @@
 
 ## 📋 Description
 
-**EcoNutri** is a comprehensive web platform dedicated to healthy and sustainable nutrition, developed as a team academic project at **ESPRIT** (École Supérieure Privée d'Ingénierie et de Technologies). The platform brings together three integrated modules built by a team of three developers, each responsible for a distinct feature set.
+**EcoNutri** is a comprehensive web platform dedicated to healthy and sustainable nutrition, developed as a collaborative academic project at **ESPRIT** (École Supérieure Privée d'Ingénierie et de Technologies) by a team of three developers. The platform aims to help users adopt healthier eating habits by providing personalized nutritional guidance, recipe management, and educational blog content — all within a single, unified web application.
 
-The first module, developed by **Achref Challouf**, handles complete **user management and authentication**: registration, login, profile management, admin dashboard with full CRUD operations, face recognition login using face-api.js, email notifications via PHPMailer, and advanced features such as dark/light mode, QR code generation, and interactive maps.
+The platform is built using a **PHP 8 MVC architecture** with MySQL databases, PDO for secure data access, and a clean separation between controllers, models, and views. The entire project was developed collaboratively using Git, with each developer working on a dedicated feature branch before merging into the main branch.
 
-The second module, developed by **Mohamed Ouslati**, covers the **blog system**: publishing and managing articles with rich content, a comment moderation system, an integrated quiz with QR code access for each article, scheduled publication, view and like tracking, and a full backoffice for blog administration.
+**Module 1 — User Management & Authentication (Achref Challouf):**
+This module forms the backbone of the EcoNutri platform. It provides a complete authentication system including user registration with strong password validation, login with Remember Me cookie support, and a forgot password feature. An innovative face recognition login was implemented using face-api.js, allowing administrators to authenticate using their webcam. The admin dashboard offers full CRUD operations on user accounts, including search, sort, ban/unban, and detailed statistics. Each user has a personalized profile with avatar upload. New users receive an automated welcome email sent via PHPMailer with SMTP Gmail. Additional features include an interactive OpenStreetMap, a QR code business card generator, a dark/light mode toggle, and a registration date calendar.
 
-The third module covers **recipe management**: creating and managing recipes with ingredients and nutritional values, categorizing food items, handling user orders, and providing a dedicated backoffice with statistics and order management.
+**Module 2 — Blog & Quiz System (Mohamed Ouslati):**
+This module provides a complete blog management system for publishing nutritional articles. Administrators can create, edit, delete, and schedule articles for future publication. Each article supports image uploads, rich text content, view and like tracking per IP address, and an integrated 3-question quiz accessible via a unique QR code. A comment moderation system allows administrators to approve, reject, or delete user comments. The blog backoffice includes detailed statistics showing top-viewed and top-liked articles with interactive charts.
 
-All three modules are fully integrated under a single MVC PHP application with a unified routing system, shared authentication, and a consistent user interface. The integration was managed through Git with feature branches merged into the main branch after validation.
+**Module 3 — Recipe & Order Management:**
+This module allows administrators to manage a catalog of recipes and food ingredients with nutritional values (calories, proteins, carbohydrates, lipids). Recipes can be categorized, linked to specific ingredients with quantities, and displayed to users on the front office. Users can place orders for recipes, and administrators can accept or reject orders with personalized messages. The backoffice includes statistics and a full order management interface.
+
+All three modules share a unified front office interface, a common navigation system, and are accessible through a single entry point at `index.php`. The integration ensures that users experience a seamless, cohesive platform regardless of which module they interact with.
 
 ---
 
