@@ -1,6 +1,6 @@
-# 🌿 EcoNutri — Plateforme de Gestion Nutritionnelle
+# 🌿 EcoNutri — Nutritional Management Platform
 
-> Projet Web MVC PHP — Gestion des Utilisateurs
+> PHP MVC Web Project — Team Integration
 
 ---
 
@@ -23,139 +23,145 @@ All three modules share a unified front office interface, a common navigation sy
 
 ---
 
-## 🚀 Fonctionnalités
+## 🚀 Features
 
-### Métiers Simples
-| Fonctionnalité | Description |
+### Basic Features
+| Feature | Description |
 |---|---|
-| 🔍 **Recherche** | Recherche par nom, prénom ou email |
-| 🔃 **Tri** | Tri par nom, prénom, email, rôle, date |
-| 📊 **Statistiques** | Total users, admins, inscrits cette semaine |
+| 🔍 **Search** | Search users by name, first name or email |
+| 🔃 **Sort** | Sort by name, first name, email, role, date |
+| 📊 **Statistics** | Total users, admins, registered this week |
 
-### Métiers Avancés
-| Fonctionnalité | Description |
+### Advanced Features
+| Feature | Description |
 |---|---|
-| 🔒 **Mot de passe fort** | Barre de force + règles visuelles |
-| 📧 **Email** | Email de bienvenue via PHPMailer SMTP Gmail |
-| 🍪 **Cookies** | Remember Me — connexion persistante |
-| 📅 **Calendrier** | Date d'inscription + aujourd'hui |
-| 📍 **Maps** | Carte OpenStreetMap intégrée |
-| 📱 **QR Code** | Carte de visite scannable |
-| 🌙 **Dark/Light Mode** | Thème sombre/clair mémorisé |
-| 🔐 **Reconnaissance faciale** | Connexion admin par visage (face-api.js) |
+| 🔒 **Strong Password** | Strength bar + visual rules |
+| 📧 **Email** | Welcome email via PHPMailer SMTP Gmail |
+| 🍪 **Cookies** | Remember Me — persistent login |
+| 📅 **Calendar** | Registration date + today |
+| 📍 **Maps** | Integrated OpenStreetMap |
+| 📱 **QR Code** | Scannable business card |
+| 🌙 **Dark/Light Mode** | Saved theme toggle |
+| 🔐 **Face Recognition** | Admin login by face (face-api.js) |
 
 ---
 
-## 🏗️ Architecture MVC
+## 🏗️ MVC Architecture
 
 ```
 econutrismar/
 ├── Controller/
-│   ├── AuthController.php      # Authentification
-│   ├── UserController.php      # CRUD Utilisateurs
-│   └── ProfilController.php    # Gestion profil
+│   ├── AuthController.php          # Authentication
+│   ├── UserController.php          # User CRUD
+│   ├── ProfilController.php        # Profile management
+│   ├── BlogController.php          # Blog front office
+│   ├── AdminBlogController.php     # Blog back office
+│   └── QuizController.php          # Quiz system
 ├── Model/
-│   └── User.php                # Modèle utilisateur
+│   ├── User.php                    # User model
+│   ├── Blog.php                    # Blog model
+│   └── Commentaire.php             # Comment model
 ├── View/
-│   ├── auth/                   # Login, Register, Forgot password
-│   ├── frontoffice/            # Accueil, Profil
-│   └── backoffice/             # Dashboard admin, CRUD users
+│   ├── auth/                       # Login, Register, Forgot password
+│   ├── frontoffice/                # Home, Profile, Blog
+│   └── backoffice/                 # Admin dashboard, CRUD
+├── recette/                        # Recipe module (independent)
 ├── config/
-│   ├── database.php            # Connexion PDO (Singleton)
-│   └── mailer.php              # Configuration PHPMailer
-├── models/                     # Modèles face-api.js
-├── uploads/avatars/            # Photos de profil
-└── index.php                   # Routeur principal
+│   ├── database.php                # PDO connection (Singleton)
+│   └── mailer.php                  # PHPMailer configuration
+├── uploads/avatars/                # Profile pictures
+└── index.php                       # Main router
 ```
 
 ---
 
-## 🛠️ Technologies utilisées
+## 🛠️ Technologies Used
 
-- **PHP 8** — Backend MVC
-- **MySQL** — Base de données
-- **PDO** — Accès sécurisé aux données
-- **PHPMailer 6.9.1** — Envoi d'emails SMTP
-- **face-api.js** — Reconnaissance faciale
-- **OpenStreetMap** — Cartographie
-- **qrserver.com API** — Génération QR Code
+- **PHP 8** — MVC Backend
+- **MySQL** — Database
+- **PDO** — Secure data access
+- **PHPMailer 6.9.1** — SMTP email sending
+- **face-api.js** — Face recognition
+- **OpenStreetMap** — Interactive map
+- **qrserver.com API** — QR Code generation
 - **HTML5 / CSS3 / JavaScript** — Frontend
 
 ---
 
-## 🔐 Sécurité
+## 🔐 Security
 
-- Mots de passe hashés avec **ARGON2ID**
-- Requêtes préparées **PDO** (protection injection SQL)
-- Échappement **htmlspecialchars()** (protection XSS)
-- Vérification des rôles (admin/user)
-- Validation côté serveur sur tous les formulaires
+- Passwords hashed with **ARGON2ID**
+- **PDO** prepared statements (SQL injection protection)
+- **htmlspecialchars()** escaping (XSS protection)
+- Role-based access control (admin/user)
+- Server-side validation on all forms
 
 ---
 
 ## ⚙️ Installation
 
-### Prérequis
+### Requirements
 - XAMPP (Apache + MySQL + PHP 8)
-- Navigateur moderne
+- Modern browser
 
-### Étapes
+### Steps
 
-**1. Cloner le repo :**
+**1. Clone the repository:**
 ```bash
 git clone https://github.com/achref6456/econutrismar.git
 ```
 
-**2. Copier dans htdocs :**
+**2. Copy to htdocs:**
 ```
 C:\xampp\htdocs\econutrismar\
 ```
 
-**3. Importer la base de données :**
-- Ouvrir phpMyAdmin : `http://localhost/phpmyadmin`
-- Créer une base `econutrismar`
-- Importer `database.sql`
+**3. Import databases in phpMyAdmin:**
+- Open `http://localhost/phpmyadmin`
+- Import `database.sql` → creates `econutrismar`
+- Import `blog.sql` → creates `econutri_db`
+- Import `recette.sql` → creates `econutri`
 
-**4. Lancer XAMPP** (Apache + MySQL)
+**4. Start XAMPP** (Apache + MySQL)
 
-**5. Accéder au projet :**
+**5. Access the project:**
 ```
-http://localhost/econutrismar/index.php?page=frontoffice
+http://localhost/econutrismar/
 ```
 
 ---
 
-## 👤 Comptes de test
+## 👤 Test Accounts
 
-| Rôle | Email | Mot de passe |
-|------|-------|--------------|
+| Role | Email | Password |
+|------|-------|----------|
 | Admin | admin@econutri.com | password |
 
 ---
 
-## 📱 Liens
+## 📱 Links
 
 | Page | URL |
 |------|-----|
 | Front Office | `http://localhost/econutrismar/` |
 | Back Office | `http://localhost/econutrismar/index.php?page=backoffice` |
-| Connexion | `http://localhost/econutrismar/index.php?page=login` |
-| Reconnaissance faciale | `http://localhost/econutrismar/index.php?page=face-login` |
+| Login | `http://localhost/econutrismar/index.php?page=login` |
+| Face Login | `http://localhost/econutrismar/index.php?page=face-login` |
 | Blog | `http://localhost/econutrismar/index.php?page=blog` |
 | Blog Admin | `http://localhost/econutrismar/index.php?page=admin_blog` |
-| Recette | `http://localhost/econutrismar/recette/views/index.php` |
-| Recette Admin | `http://localhost/econutrismar/recette/views/backoffice/index.php` |
+| Recipes | `http://localhost/econutrismar/recette/views/index.php` |
+| Recipes Admin | `http://localhost/econutrismar/recette/views/backoffice/index.php` |
 
 ---
 
-## 👨‍💻 Équipe
+## 👨‍💻 Team
 
-| Module | Développeur |
-|--------|-------------|
-| Gestion Utilisateurs + Auth | **Achref Challouf** |
-| Blog + Quiz + Commentaires | **Mohamed** |
-| Recettes + Aliments + Commandes | **Camarade** |
+| Module | Developer |
+|--------|-----------|
+| User Management + Authentication | **Achref Challouf** |
+| Blog + Quiz + Comments | **Mohamed Ouslati** |
+| Recipes + Ingredients + Orders | **Eya** |
 
 ---
 
-© 2026 EcoNutri — Alimentation saine & durable 🌿
+© 2026 EcoNutri — Healthy & Sustainable Nutrition 🌿
