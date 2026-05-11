@@ -95,19 +95,19 @@
 </head>
 <body>
   <header>
-    <a class="logo" href="../index.html">Eco<span>Nutri</span></a>
+    <a class="logo" href="/econutrismar/index.php">Eco<span>Nutri</span></a>
     <nav>
-      <a href="../index.html">Accueil</a>
-      <a href="index.php">Blog</a>
-      <a href="search.php">Recherche</a>
-      <a class="nav-admin" href="../../backoffice/dev_session.php" title="Session admin sans mot de passe (dev — voir Model/config.php)">Admin blog</a>
+      <a href="/econutrismar/index.php">Accueil</a>
+      <a href="/econutrismar/index.php?page=blog">Blog</a>
+      <a href="/econutrismar/index.php?page=blog&action=search">Recherche</a>
+      <a class="nav-admin" href="/econutrismar/index.php?page=blog_admin" title="Admin blog">Admin blog</a>
     </nav>
   </header>
   <main class="wrap">
-    <a class="back" href="index.php">← Retour au blog</a>
+    <a class="back" href="/econutrismar/index.php?page=blog">← Retour au blog</a>
     <?php
       $img = trim((string)($article['image'] ?? ''));
-      $src = $img !== '' ? $uploadBase . htmlspecialchars($img) : '';
+      $src = $img !== '' ? '/econutrismar/View/' . htmlspecialchars($img) : '';
     ?>
     <h1><?= htmlspecialchars($article['titre']) ?></h1>
     <?php
@@ -180,12 +180,12 @@
     const articleId = <?= (int)$article['id_article'] ?>;
     
     // ─── Enregistrer la vue ───
-    fetch('../../api/blog_vue.php?id=' + articleId, { method: 'POST' }).catch(e => console.error(e));
+    fetch('/econutrismar/index.php?page=api_blog&action=vue&id=' + articleId, { method: 'POST' }).catch(e => console.error(e));
 
     // ─── Like ───
     const likeBtn = document.getElementById('likeBtn');
     likeBtn.addEventListener('click', () => {
-      fetch('../../api/blog_like.php?id=' + articleId, { method: 'POST' })
+      fetch('/econutrismar/index.php?page=api_blog&action=like&id=' + articleId, { method: 'POST' })
         .then(res => res.json())
         .then(data => {
           if (data.success) {
@@ -203,7 +203,7 @@
 
     // ─── Commentaires : charger la liste ───
     function loadComments() {
-      fetch('../../api/blog_commentaires.php?id=' + articleId)
+      fetch('/econutrismar/index.php?page=api_blog&action=comments&id=' + articleId)
         .then(res => res.json())
         .then(data => {
           const container = document.getElementById('commentsList');
@@ -260,7 +260,7 @@
       btn.disabled = true;
       btn.textContent = 'Envoi…';
 
-      fetch('../../api/blog_commentaire.php?id=' + articleId, {
+      fetch('/econutrismar/index.php?page=api_blog&action=comment&id=' + articleId, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pseudo, contenu })
@@ -314,7 +314,7 @@
       btn.disabled = true;
       btn.textContent = 'Envoi…';
 
-      fetch('../../api/blog_commentaire_update.php?id=' + id, {
+      fetch('/econutrismar/index.php?page=api_blog&action=comment_update&id=' + id, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contenu: text })

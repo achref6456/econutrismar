@@ -262,6 +262,7 @@ if ($views_pos === false) {
 <div class="toast" id="toast"></div>
 
 <script>
+const root = '<?= $root ?>';
 function openModal(type){const id=type==='login'?'loginModal':'registerModal';document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
 function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
 function closeModalOutside(e,id){if(e.target===document.getElementById(id))closeModal(id);}
@@ -270,7 +271,7 @@ function toggleTag(el){el.classList.toggle('selected');}
 function handleLogin(){
   const email=document.getElementById('adminEmail').value.trim();
   const password=document.getElementById('adminPassword').value.trim();
-  if(email==='admin@econutri.com'&&password==='admin123'){closeModal('loginModal');showToast('🎉 Connexion admin réussie !');setTimeout(()=>{window.location.href='/EcoNutri/views/backoffice/index.php';},800);}else{showToast('❌ Email ou mot de passe incorrect','error');}}
+  if(email==='admin@econutri.com'&&password==='admin123'){closeModal('loginModal');showToast('🎉 Connexion admin réussie !');setTimeout(()=>{window.location.href=root+'backoffice/index.php';},800);}else{showToast('❌ Email ou mot de passe incorrect','error');}}
 
 function handleRegister(){closeModal('registerModal');showToast('🌿 Compte créé avec succès ! Bienvenue dans la communauté EcoNutri !');}
 

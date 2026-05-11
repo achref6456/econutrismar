@@ -17,7 +17,9 @@ if ($rawDate !== '') {
 }
 $imageUrl = htmlspecialchars((string) ($a['image'] ?? ''));
 $statut = htmlspecialchars((string) ($a['statut'] ?? 'publie'));
-$action = $isEdit ? 'edit.php' : 'create.php';
+$action = $isEdit
+    ? '/econutrismar/index.php?page=admin_blog&action=update'
+    : '/econutrismar/index.php?page=admin_blog&action=store';
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -77,14 +79,14 @@ $action = $isEdit ? 'edit.php' : 'create.php';
 <body>
   <aside>
     <div>
-      <a class="logo" href="index.php">Eco<span>Nutri</span></a>
+      <a class="logo" href="/econutrismar/index.php?page=admin_blog">Eco<span>Nutri</span></a>
       <div class="tag">Back-office · Blog</div>
     </div>
     <nav>
-      <a class="active" href="index.php">Articles</a>
-      <a href="../frontoffice/blog/index.php">Voir le site</a>
+      <a class="active" href="/econutrismar/index.php?page=admin_blog">Articles</a>
+      <a href="/econutrismar/index.php?page=blog">Voir le site</a>
     </nav>
-    <div class="logout"><a href="logout.php">Déconnexion</a></div>
+    <div class="logout"><a href="/econutrismar/index.php?page=logout">Déconnexion</a></div>
   </aside>
   <main>
     <h1><?= $isEdit ? 'Modifier l\'article' : 'Nouvel article' ?></h1>
@@ -139,7 +141,7 @@ $action = $isEdit ? 'edit.php' : 'create.php';
       </div>
       <?php if ($isEdit && trim((string)($a['image'] ?? '')) !== ''): ?>
         <p class="hint">Image actuelle :</p>
-        <img class="preview" src="<?= $assetBase . htmlspecialchars((string)$a['image']) ?>" alt="" />
+        <img class="preview" src="/econutrismar/View/<?= htmlspecialchars((string)($a['image'] ?? '')) ?>" alt="Image actuelle" />
       <?php endif; ?>
       <div class="quiz-block">
         <h2>Quiz (QR code)</h2>
@@ -188,7 +190,7 @@ $action = $isEdit ? 'edit.php' : 'create.php';
       </div>
       <div class="actions">
         <button class="btn btn-primary" type="submit" id="submitBtn"><?= $isEdit ? 'Enregistrer' : 'Publier' ?></button>
-        <a class="btn btn-ghost" href="index.php">Annuler</a>
+        <a class="btn btn-ghost" href="/econutrismar/index.php?page=admin_blog">Annuler</a>
       </div>
     </form>
   </main>

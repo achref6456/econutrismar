@@ -129,4 +129,71 @@ switch ($page) {
     case 'carte':
         require_once __DIR__ . '/View/frontoffice/carte.php';
         break;
+
+    // ── Blog (module Mohamed) ─────────────────────────────────────────────
+    case 'blog':
+        require_once __DIR__ . '/Model/bootstrap.php';
+        require_once __DIR__ . '/Controller/BlogController.php';
+        $controller = new BlogController();
+        switch ($action) {
+            case 'show':    $controller->show();    break;
+            case 'search':  $controller->search();  break;
+            case 'like':    $controller->like();    break;
+            case 'comment': $controller->comment(); break;
+            default:        $controller->index();   break;
+        }
+        break;
+
+    // ── Blog Admin / Backoffice Blog ──────────────────────────────────────
+    case 'blog_admin':
+    case 'admin_blog':
+        require_once __DIR__ . '/Model/bootstrap.php';
+        require_once __DIR__ . '/Controller/AdminBlogController.php';
+        $controller = new AdminBlogController();
+        // Bypass dev : connecter automatiquement le premier admin en base
+        $cfg = require __DIR__ . '/Model/config.php';
+        if (!empty($cfg['app']['dev_blog_admin_bypass']) && empty($_SESSION['admin_id'])) {
+            require_once __DIR__ . '/Model/Blog.php';
+            $blogModel = new Blog();
+            $_SESSION['admin_id'] = $blogModel->getDefaultAdminUserId();
+        }
+        switch ($action) {
+            case 'create':       $controller->createForm(); break;
+            case 'store':        $controller->store();      break;
+            case 'edit':         $controller->editForm();   break;
+            case 'update':       $controller->update();     break;
+            case 'delete':       $controller->delete();     break;
+            case 'stats':        $controller->stats();      break;
+            case 'commentaires': $controller->commentaires(); break;
+            default:             $controller->index();      break;
+        }
+        break;
+
+    // ── Quiz (module Mohamed) ─────────────────────────────────────────────
+    case 'quiz':
+        require_once __DIR__ . '/Model/bootstrap.php';
+        require_once __DIR__ . '/Controller/QuizController.php';
+        $controller = new QuizController();
+        $controller->show();
+        break;
+
+    // ── API Blog (AJAX) ───────────────────────────────────────────────────
+    case 'api_blog':
+        require_once __DIR__ . '/Model/bootstrap.php';
+        require_once __DIR__ . '/Controller/ApiBlogController.php';
+        $controller = new ApiBlogController();
+        switch ($action) {
+            case 'vue':                   $controller->vue();                break;
+            case 'like':                  $controller->like();               break;
+            case 'stats':                 $controller->stats();              break;
+            case 'comment':               $controller->submitComment();      break;
+            case 'comment_update':        $controller->updateComment();      break;
+            case 'comments':              $controller->getComments();        break;
+            case 'admin_comments':        $controller->adminGetComments();   break;
+            case 'admin_approve':         $controller->adminApprove();       break;
+            case 'admin_refuse':          $controller->adminRefuse();        break;
+            case 'admin_delete':          $controller->adminDelete();        break;
+            case 'admin_pending_count':   $controller->adminPendingCount();  break;
+        }
+        break;
 }

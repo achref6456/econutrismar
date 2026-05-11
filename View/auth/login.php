@@ -156,13 +156,6 @@
 
   <div class="card-body">
 
-    <!-- Compte de test -->
-    <div class="test-hint">
-      🧪 <strong>Compte test admin :</strong><br>
-      Email : <strong>admin@econutri.com</strong><br>
-      Mot de passe : <strong>Admin1234</strong>
-    </div>
-
     <?php if (!empty($_SESSION['success'])): ?>
       <div class="alert alert-success">✅ <?= htmlspecialchars($_SESSION['success']) ?></div>
       <?php unset($_SESSION['success']); ?>

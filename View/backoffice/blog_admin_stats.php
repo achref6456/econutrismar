@@ -38,18 +38,18 @@
 <body>
   <aside>
     <div>
-      <a class="logo" href="index.php">Eco<span>Nutri</span></a>
+      <a class="logo" href="/econutrismar/index.php?page=admin_blog">Eco<span>Nutri</span></a>
       <div class="tag">Back-office</div>
     </div>
     <nav>
-      <a href="index.php">Articles du blog</a>
-      <a class="active" href="stats.php">Statistiques</a>
-      <a href="commentaires.php" style="display:flex;align-items:center;gap:.5rem;">💬 Commentaires <span id="pendingBadge" style="background:#e53935;color:#fff;font-size:.68rem;font-weight:700;padding:.12rem .45rem;border-radius:50px;min-width:18px;text-align:center;display:none;"></span></a>
-      <a href="../frontoffice/blog/index.php">Voir le blog (site)</a>
+      <a href="/econutrismar/index.php?page=admin_blog">Articles du blog</a>
+      <a class="active" href="/econutrismar/index.php?page=admin_blog&action=stats">Statistiques</a>
+      <a href="/econutrismar/index.php?page=admin_blog&action=commentaires" style="display:flex;align-items:center;gap:.5rem;">💬 Commentaires <span id="pendingBadge" style="background:#e53935;color:#fff;font-size:.68rem;font-weight:700;padding:.12rem .45rem;border-radius:50px;min-width:18px;text-align:center;display:none;"></span></a>
+      <a href="/econutrismar/index.php?page=blog">Voir le blog (site)</a>
     </nav>
     <div class="logout">
       Connecté : <?= htmlspecialchars($_SESSION['admin_name'] ?? 'Admin') ?><br />
-      <a href="logout.php">Déconnexion</a>
+      <a href="/econutrismar/index.php?page=logout">Déconnexion</a>
     </div>
   </aside>
   <main>
@@ -101,7 +101,7 @@
     }
 
     function loadStats(period) {
-      fetch('../api/blog_stats.php?period=' + period)
+      fetch('/econutrismar/index.php?page=api_blog&action=stats&period=' + period)
         .then(res => res.json())
         .then(data => {
           renderTops('topViews', data.topViews);
@@ -142,7 +142,7 @@
     loadStats('all');
 
     // Charger le badge des commentaires en attente
-    fetch('../api/admin_commentaires_pending.php')
+    fetch('/econutrismar/index.php?page=api_blog&action=admin_pending_count')
       .then(r => r.json())
       .then(data => {
         const badge = document.getElementById('pendingBadge');

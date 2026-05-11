@@ -50,18 +50,20 @@
 </head>
 <body>
   <header>
-    <a class="logo" href="../index.html">Eco<span>Nutri</span></a>
+    <a class="logo" href="/econutrismar/index.php">Eco<span>Nutri</span></a>
     <nav>
-      <a href="../index.html">Accueil</a>
-      <a href="index.php">Blog</a>
-      <a href="search.php">Recherche</a>
-      <a class="nav-admin" href="../../backoffice/dev_session.php" title="Session admin sans mot de passe (dev — voir Model/config.php)">Admin blog</a>
+      <a href="/econutrismar/index.php">Accueil</a>
+      <a href="/econutrismar/index.php?page=blog">Blog</a>
+      <a href="/econutrismar/index.php?page=blog&action=search">Recherche</a>
+      <a class="nav-admin" href="/econutrismar/index.php?page=admin_blog">Admin blog</a>
     </nav>
   </header>
   <main class="wrap">
     <h1>Blog</h1>
     <p class="sub">Articles nutrition, recettes et conseils — lecture seule (front-office).</p>
-    <form class="search-bar" action="search.php" method="get" id="formSearch">
+    <form class="search-bar" action="/econutrismar/index.php" method="get" id="formSearch">
+      <input type="hidden" name="page" value="blog" />
+      <input type="hidden" name="action" value="search" />
       <input type="search" name="q" id="q" placeholder="Rechercher un article…" value="" autocomplete="off" />
       <button type="submit">Rechercher</button>
     </form>
@@ -82,7 +84,7 @@
         <?php foreach ($articles as $a): ?>
           <?php
             $img = trim((string)($a['image'] ?? ''));
-            $src = $img !== '' ? $uploadBase . htmlspecialchars($img) : 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80';
+            $src = $img !== '' ? '/econutrismar/View/' . htmlspecialchars($img) : 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80';
           ?>
           <?php
             $qTok = trim((string) ($a['quiz_token'] ?? ''));
@@ -93,7 +95,7 @@
               <img src="<?= $src ?>" alt="" />
             </div>
             <div class="card-body">
-              <h2><a href="article.php?id=<?= (int)$a['id_article'] ?>"><?= htmlspecialchars($a['titre']) ?></a></h2>
+              <h2><a href="/econutrismar/index.php?page=blog&action=show&id=<?= (int)$a['id_article'] ?>"><?= htmlspecialchars($a['titre']) ?></a></h2>
               <div class="meta"><?= htmlspecialchars($a['date_publication']) ?> · <?= htmlspecialchars(trim(($a['prenom'] ?? '') . ' ' . ($a['auteur_nom'] ?? ''))) ?></div>
               <p class="excerpt"><?= htmlspecialchars(mb_substr(strip_tags($a['contenu']), 0, 220)) ?><?= mb_strlen(strip_tags($a['contenu'])) > 220 ? '…' : '' ?></p>
             </div>

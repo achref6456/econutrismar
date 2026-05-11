@@ -1642,7 +1642,8 @@ $registerPost   = $registerPost   ?? [];
 
       <nav>
         <a href="#" class="active">Accueil</a>
-        <a href="index.html">Nos Recettes</a>
+        <a href="/econutrismar/index.php?page=blog">Blog</a>
+        <a href="/econutrismar/recette/views/index.php">Nos Recettes</a>
         <a href="#fonctionnalites">Fonctionnalités</a>
         <a href="#comment">Comment ça marche</a>
         <a href="#contact">Contact</a>
@@ -1661,10 +1662,16 @@ $registerPost   = $registerPost   ?? [];
              style="background:rgba(255,255,255,0.15);color:#fff;border:1.5px solid rgba(255,255,255,0.4);padding:0.5rem 1.2rem;border-radius:50px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:background 0.2s;">
             👤 Mon Profil
           </a>
-          <a href="index.php?page=logout"
+          <a href="index.php?page=logout&from=frontoffice"
              style="background:#e53935;color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:50px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:background 0.2s;">
             🚪 Déconnexion
           </a>
+          <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
+          <a href="index.php?page=backoffice"
+             style="background:#2d6a1f;color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:50px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:background 0.2s;">
+            ⚙️ Backoffice
+          </a>
+          <?php endif; ?>
           <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Mode sombre/clair">🌙</button>
         <?php else: ?>
           <button class="btn-login" onclick="openModal('login')">
@@ -1720,7 +1727,7 @@ $registerPost   = $registerPost   ?? [];
             </svg>
           </a>
           <?php endif; ?>
-          <a href="index.html" class="cta-secondary">
+          <a href="/econutrismar/recette/views/index.php" class="cta-secondary">
             <svg
               width="16"
               height="16"
@@ -2002,7 +2009,7 @@ $registerPost   = $registerPost   ?? [];
             Recettes <span>populaires</span>
           </h2>
         </div>
-        <a href="index.html" class="see-all">Voir toutes les recettes →</a>
+        <a href="/econutrismar/recette/views/index.php" class="see-all">Voir toutes les recettes →</a>
       </div>
 
       <div class="recipes-row">
@@ -2229,7 +2236,7 @@ $registerPost   = $registerPost   ?? [];
           <h4>Navigation</h4>
           <ul>
             <li><a href="#">Accueil</a></li>
-            <li><a href="index.html">Nos Recettes</a></li>
+            <li><a href="/econutrismar/recette/views/index.php">Nos Recettes</a></li>
             <li><a href="#fonctionnalites">Fonctionnalités</a></li>
             <li><a href="#comment">Comment ça marche</a></li>
           </ul>

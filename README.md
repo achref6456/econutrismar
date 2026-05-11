@@ -117,7 +117,7 @@ http://localhost/econutrismar/index.php?page=frontoffice
 
 | Rôle | Email | Mot de passe |
 |------|-------|--------------|
-| Admin | admin@econutri.com | Admin1234 |
+| Admin | admin@econutri.com | password |
 
 ---
 
@@ -125,16 +125,24 @@ http://localhost/econutrismar/index.php?page=frontoffice
 
 | Page | URL |
 |------|-----|
-| Front Office | `/index.php?page=frontoffice` |
-| Back Office | `/index.php?page=backoffice` |
-| Connexion | `/index.php?page=login` |
-| Reconnaissance faciale | `/index.php?page=face-login` |
+| Front Office | `http://localhost/econutrismar/` |
+| Back Office | `http://localhost/econutrismar/index.php?page=backoffice` |
+| Connexion | `http://localhost/econutrismar/index.php?page=login` |
+| Reconnaissance faciale | `http://localhost/econutrismar/index.php?page=face-login` |
+| Blog | `http://localhost/econutrismar/index.php?page=blog` |
+| Blog Admin | `http://localhost/econutrismar/index.php?page=admin_blog` |
+| Recette | `http://localhost/econutrismar/recette/views/index.php` |
+| Recette Admin | `http://localhost/econutrismar/recette/views/backoffice/index.php` |
 
 ---
 
-## 👨‍💻 Auteur
+## 👨‍💻 Équipe
 
-**Achref Challouf** — Module Gestion Utilisateurs
+| Module | Développeur |
+|--------|-------------|
+| Gestion Utilisateurs + Auth | **Achref Challouf** |
+| Blog + Quiz + Commentaires | **Mohamed** |
+| Recettes + Aliments + Commandes | **Camarade** |
 
 ---
 

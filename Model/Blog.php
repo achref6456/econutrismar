@@ -292,13 +292,14 @@ class Blog
     {
         if ($this->pdo === null) {
             $rows = $this->loadJsonArticles();
-            $now = date('Y-m-d H:i:s');
+            $now = time();
             $count = 0;
             foreach ($rows as &$r) {
                 if (($r['statut'] ?? '') === 'programme') {
-                    // Normaliser la date stockée pour la comparaison
-                    $pubDate = $this->normalizeDatetime((string) ($r['date_publication'] ?? ''));
-                    if ($pubDate <= $now) {
+                    // Normaliser le format T → espace pour strtotime
+                    $rawDate = str_replace('T', ' ', (string) ($r['date_publication'] ?? ''));
+                    $pubTimestamp = strtotime($rawDate);
+                    if ($pubTimestamp !== false && $pubTimestamp <= $now) {
                         $r['statut'] = 'publie';
                         $count++;
                     }

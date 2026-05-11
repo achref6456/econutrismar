@@ -68,18 +68,18 @@
 <body>
   <aside>
     <div>
-      <a class="logo" href="index.php">Eco<span>Nutri</span></a>
+      <a class="logo" href="/econutrismar/index.php?page=admin_blog">Eco<span>Nutri</span></a>
       <div class="tag">Back-office</div>
     </div>
     <nav>
-      <a href="index.php">Articles du blog</a>
-      <a href="stats.php">Statistiques</a>
-      <a class="active" href="commentaires.php">💬 Commentaires <span class="nav-badge" id="sidebarBadge"><?= $pendingCount ?></span></a>
-      <a href="../frontoffice/blog/index.php">Voir le blog (site)</a>
+      <a href="/econutrismar/index.php?page=admin_blog">Articles du blog</a>
+      <a href="/econutrismar/index.php?page=admin_blog&action=stats">Statistiques</a>
+      <a class="active" href="/econutrismar/index.php?page=admin_blog&action=commentaires">💬 Commentaires <span class="nav-badge" id="sidebarBadge"><?= $pendingCount ?></span></a>
+      <a href="/econutrismar/index.php?page=blog">Voir le blog (site)</a>
     </nav>
     <div class="logout">
       Connecté : <?= htmlspecialchars($_SESSION['admin_name'] ?? 'Admin') ?><br />
-      <a href="logout.php">Déconnexion</a>
+      <a href="/econutrismar/index.php?page=logout">Déconnexion</a>
     </div>
   </aside>
   <main>
@@ -124,7 +124,7 @@
   </main>
 
   <script>
-    const API_BASE = '../api/';
+    const API_BASE = '/econutrismar/index.php?page=api_blog&action=';
     let allArticles = [];
 
     /* ─── Charger & afficher ─── */
@@ -132,7 +132,7 @@
       const statut    = document.getElementById('filterStatut').value;
       const articleId = document.getElementById('filterArticle').value;
 
-      let url = API_BASE + 'admin_commentaires.php?';
+      let url = API_BASE + 'admin_comments&';
       if (statut)    url += 'statut=' + encodeURIComponent(statut) + '&';
       if (articleId) url += 'article_id=' + encodeURIComponent(articleId) + '&';
 
@@ -193,7 +193,7 @@
         return `<tr id="row-${id}">
           <td><strong>${pseudo}</strong></td>
           <td><span class="comment-text" title="${contenu}">"${contenu}"</span></td>
-          <td><a class="article-name" href="../frontoffice/blog/article.php?id=${parseInt(c.article_id, 10)}" title="Voir l'article">${titre}</a></td>
+          <td><a class="article-name" href="/econutrismar/index.php?page=blog&action=show&id=${parseInt(c.article_id, 10)}" title="Voir l'article">${titre}</a></td>
           <td>${dateStr}</td>
           <td><span class="statut ${escapeHtml(c.statut)}">${statutLabel}</span></td>
           <td><div class="actions">${actionBtns}</div></td>
@@ -203,7 +203,8 @@
 
     /* ─── Actions ─── */
     function doAction(id, action) {
-      fetch(API_BASE + 'admin_commentaire_action.php?id=' + id + '&action=' + action, { method: 'POST' })
+      const apiAction = action === 'approuver' ? 'admin_approve' : 'admin_refuse';
+      fetch(API_BASE + apiAction + '&id=' + id, { method: 'POST' })
         .then(r => r.json())
         .then(data => {
           if (data.success) {
@@ -217,7 +218,7 @@
 
     function doDelete(id) {
       if (!confirm('Supprimer définitivement ce commentaire ?')) return;
-      fetch(API_BASE + 'admin_commentaire_action.php?id=' + id + '&action=supprimer', { method: 'POST' })
+      fetch(API_BASE + 'admin_delete&id=' + id, { method: 'POST' })
         .then(r => r.json())
         .then(data => {
           if (data.success) {
@@ -231,7 +232,7 @@
 
     /* ─── Badge sidebar ─── */
     function updateBadge() {
-      fetch(API_BASE + 'admin_commentaires_pending.php')
+      fetch(API_BASE + 'admin_pending_count')
         .then(r => r.json())
         .then(data => {
           const badge = document.getElementById('sidebarBadge');

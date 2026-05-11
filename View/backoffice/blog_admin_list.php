@@ -55,24 +55,24 @@ $sortCurrent = $sortCurrent ?? 'date_desc';
 <body>
   <aside>
     <div>
-      <a class="logo" href="index.php">Eco<span>Nutri</span></a>
+      <a class="logo" href="/econutrismar/index.php?page=admin_blog">Eco<span>Nutri</span></a>
       <div class="tag">Back-office</div>
     </div>
     <nav>
-      <a class="active" href="index.php">Articles du blog</a>
-      <a href="stats.php">Statistiques</a>
-      <a href="commentaires.php" style="display:flex;align-items:center;gap:.5rem;">💬 Commentaires <span id="pendingBadge" style="background:#e53935;color:#fff;font-size:.68rem;font-weight:700;padding:.12rem .45rem;border-radius:50px;min-width:18px;text-align:center;display:none;"></span></a>
-      <a href="../frontoffice/blog/index.php">Voir le blog (site)</a>
+      <a class="active" href="/econutrismar/index.php?page=admin_blog">Articles du blog</a>
+      <a href="/econutrismar/index.php?page=admin_blog&action=stats">Statistiques</a>
+      <a href="/econutrismar/index.php?page=admin_blog&action=commentaires" style="display:flex;align-items:center;gap:.5rem;">💬 Commentaires <span id="pendingBadge" style="background:#e53935;color:#fff;font-size:.68rem;font-weight:700;padding:.12rem .45rem;border-radius:50px;min-width:18px;text-align:center;display:none;"></span></a>
+      <a href="/econutrismar/index.php?page=blog">Voir le blog (site)</a>
     </nav>
     <div class="logout">
       Connecté : <?= htmlspecialchars($_SESSION['admin_name'] ?? 'Admin') ?><br />
-      <a href="logout.php">Déconnexion</a>
+      <a href="/econutrismar/index.php?page=logout">Déconnexion</a>
     </div>
   </aside>
   <main>
     <div class="top">
       <h1>Gestion des articles</h1>
-      <a class="btn" href="create.php">+ Nouvel article</a>
+      <a class="btn" href="/econutrismar/index.php?page=admin_blog&action=create">+ Nouvel article</a>
     </div>
     <?php if (!empty($flash)): ?>
       <div class="flash"><?= htmlspecialchars($flash) ?></div>
@@ -82,7 +82,8 @@ $sortCurrent = $sortCurrent ?? 'date_desc';
         <label for="adminListTitleFilter">Recherche d'article</label>
         <input type="search" id="adminListTitleFilter" placeholder="Tapez pour afficher les articles…" autocomplete="off" />
       </div>
-      <form class="toolbar-sort" method="get" action="index.php">
+      <form class="toolbar-sort" method="get" action="/econutrismar/index.php">
+        <input type="hidden" name="page" value="admin_blog" />
         <select name="tri" aria-label="Trier par">
           <option value="date_desc" <?= $sortCurrent === 'date_desc' ? 'selected' : '' ?>>Date ↓</option>
           <option value="date_asc" <?= $sortCurrent === 'date_asc' ? 'selected' : '' ?>>Date ↑</option>
@@ -95,7 +96,7 @@ $sortCurrent = $sortCurrent ?? 'date_desc';
         </select>
         <button class="btn" type="submit" style="padding:.5rem 1rem;">Appliquer</button>
         <?php if ($sortCurrent !== 'date_desc'): ?>
-          <a class="link-reset" href="index.php">Réinitialiser</a>
+          <a class="link-reset" href="/econutrismar/index.php?page=admin_blog">Réinitialiser</a>
         <?php endif; ?>
       </form>
     </div>
@@ -119,7 +120,7 @@ $sortCurrent = $sortCurrent ?? 'date_desc';
             <?php foreach ($articles as $a): ?>
               <?php
                 $img = trim((string)($a['image'] ?? ''));
-                $thumb = $img !== '' ? $assetBase . htmlspecialchars($img) : '';
+                $thumb = $img !== '' ? '/econutrismar/View/' . htmlspecialchars($img) : '';
                 $st = (string) ($a['statut'] ?? 'publie');
                 $statutLabels = ['publie' => '✅ Publié', 'brouillon' => '📝 Brouillon', 'programme' => '⏰ Programmé'];
                 $statutLabel = $statutLabels[$st] ?? $st;
@@ -146,8 +147,8 @@ $sortCurrent = $sortCurrent ?? 'date_desc';
                 <td><?= (int) ($a['likes'] ?? 0) ?></td>
                 <td>
                   <div class="actions">
-                    <a href="../frontoffice/blog/article.php?id=<?= (int)$a['id_article'] ?>">Voir</a>
-                    <a href="edit.php?id=<?= (int)$a['id_article'] ?>">Modifier</a>
+                    <a href="/econutrismar/index.php?page=blog&action=show&id=<?= (int)$a['id_article'] ?>">Voir</a>
+                    <a href="/econutrismar/index.php?page=admin_blog&action=edit&id=<?= (int)$a['id_article'] ?>">Modifier</a>
                     <button type="button" class="danger" data-del="<?= (int)$a['id_article'] ?>">Supprimer</button>
                   </div>
                 </td>
@@ -186,7 +187,7 @@ $sortCurrent = $sortCurrent ?? 'date_desc';
       btn.addEventListener("click", function () {
         var id = btn.getAttribute("data-del");
         if (confirm("Supprimer définitivement cet article ?")) {
-          window.location.href = "delete.php?id=" + encodeURIComponent(id);
+          window.location.href = "/econutrismar/index.php?page=admin_blog&action=delete&id=" + encodeURIComponent(id);
         }
       });
     });

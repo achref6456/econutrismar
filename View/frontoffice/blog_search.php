@@ -31,17 +31,19 @@
 </head>
 <body>
   <header>
-    <a class="logo" href="../index.html">Eco<span>Nutri</span></a>
+    <a class="logo" href="/econutrismar/index.php">Eco<span>Nutri</span></a>
     <nav>
-      <a href="../index.html">Accueil</a>
-      <a href="index.php">Blog</a>
-      <a href="search.php">Recherche</a>
-      <a class="nav-admin" href="../../backoffice/dev_session.php" title="Session admin sans mot de passe (dev — voir Model/config.php)">Admin blog</a>
+      <a href="/econutrismar/index.php">Accueil</a>
+      <a href="/econutrismar/index.php?page=blog">Blog</a>
+      <a href="/econutrismar/index.php?page=blog&action=search">Recherche</a>
+      <a class="nav-admin" href="/econutrismar/index.php?page=admin_blog">Admin blog</a>
     </nav>
   </header>
   <main class="wrap">
     <h1>Recherche</h1>
-    <form class="search-bar" action="search.php" method="get" id="formSearch">
+    <form class="search-bar" action="/econutrismar/index.php" method="get" id="formSearch">
+      <input type="hidden" name="page" value="blog" />
+      <input type="hidden" name="action" value="search" />
       <input type="search" name="q" id="q" placeholder="Mots-clés…" value="<?= htmlspecialchars($q) ?>" autocomplete="off" />
       <button type="submit">Rechercher</button>
     </form>
@@ -58,7 +60,7 @@
       <div class="grid">
         <?php foreach ($articles as $a): ?>
           <article class="card">
-            <h2><a href="article.php?id=<?= (int)$a['id_article'] ?>"><?= htmlspecialchars($a['titre']) ?></a></h2>
+            <h2><a href="/econutrismar/index.php?page=blog&action=show&id=<?= (int)$a['id_article'] ?>"><?= htmlspecialchars($a['titre']) ?></a></h2>
             <div class="meta"><?= htmlspecialchars($a['date_publication']) ?></div>
           </article>
         <?php endforeach; ?>

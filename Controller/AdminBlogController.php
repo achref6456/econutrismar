@@ -14,7 +14,7 @@ class AdminBlogController
     public function requireAuth(): void
     {
         if (empty($_SESSION['admin_id'])) {
-            header('Location: login.php');
+            header('Location: /econutrismar/index.php?page=login');
             exit;
         }
     }
@@ -79,7 +79,7 @@ class AdminBlogController
     {
         $this->requireAuth();
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: create.php');
+            header('Location: /econutrismar/index.php?page=admin_blog&action=create');
             exit;
         }
         $data = $this->sanitizeInput();
@@ -92,7 +92,7 @@ class AdminBlogController
         if ($errors !== []) {
             $_SESSION['form_errors'] = $errors;
             $_SESSION['form_old'] = $_POST;
-            header('Location: create.php');
+            header('Location: /econutrismar/index.php?page=admin_blog&action=create');
             exit;
         }
 
@@ -109,7 +109,7 @@ class AdminBlogController
             'programme' => 'Article programmé pour publication le ' . $data['date_publication'] . '.',
         ];
         $_SESSION['flash'] = $flashMsgs[$data['statut']] ?? 'Article enregistré.';
-        header('Location: index.php');
+        header('Location: /econutrismar/index.php?page=admin_blog');
         exit;
     }
 
@@ -118,14 +118,14 @@ class AdminBlogController
         $this->requireAuth();
         $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
         if ($id < 1) {
-            header('Location: index.php');
+            header('Location: /econutrismar/index.php?page=admin_blog');
             exit;
         }
         $this->model->ensureQuizTokensForAll();
         $article = $this->model->findById($id);
         if ($article === null) {
             $_SESSION['flash'] = 'Article introuvable.';
-            header('Location: index.php');
+            header('Location: /econutrismar/index.php?page=admin_blog');
             exit;
         }
         $errors = $_SESSION['form_errors'] ?? [];
@@ -150,18 +150,18 @@ class AdminBlogController
     {
         $this->requireAuth();
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: index.php');
+            header('Location: /econutrismar/index.php?page=admin_blog');
             exit;
         }
         $id = isset($_POST['id_article']) ? (int) $_POST['id_article'] : 0;
         if ($id < 1) {
-            header('Location: index.php');
+            header('Location: /econutrismar/index.php?page=admin_blog');
             exit;
         }
         $existing = $this->model->findById($id);
         if ($existing === null) {
             $_SESSION['flash'] = 'Article introuvable.';
-            header('Location: index.php');
+            header('Location: /econutrismar/index.php?page=admin_blog');
             exit;
         }
 
@@ -184,13 +184,13 @@ class AdminBlogController
         if ($errors !== []) {
             $_SESSION['form_errors'] = $errors;
             $_SESSION['form_old'] = $_POST;
-            header('Location: edit.php?id=' . $id);
+            header('Location: /econutrismar/index.php?page=admin_blog&action=edit&id=' . $id);
             exit;
         }
 
         $this->model->update($id, $data);
         $_SESSION['flash'] = 'Article mis à jour.';
-        header('Location: index.php');
+        header('Location: /econutrismar/index.php?page=admin_blog');
         exit;
     }
 
@@ -199,12 +199,12 @@ class AdminBlogController
         $this->requireAuth();
         $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
         if ($id < 1) {
-            header('Location: index.php');
+            header('Location: /econutrismar/index.php?page=admin_blog');
             exit;
         }
         $this->model->delete($id);
         $_SESSION['flash'] = 'Article supprimé.';
-        header('Location: index.php');
+        header('Location: /econutrismar/index.php?page=admin_blog');
         exit;
     }
 
